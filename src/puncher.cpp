@@ -22,7 +22,7 @@ void Puncher::update(Intake& intake) {
 
       if (prevState != state) {
         prevState = state;
-        motor.move_relative(270, 100);
+        motor.move_relative(135, 100);
       }
 
       if (abs(motor.getPosition() - motor.getTargetPosition()) < 5) {
@@ -45,8 +45,9 @@ void Puncher::update(Intake& intake) {
         prevState = state;
       }
 
-      if (limsw.isPressed()) {
+      if (limsw.changedToPressed()) {
         state = PuncherState::pullback;
+        tare();
 
       } else {
         motor.moveVelocity(100);
