@@ -16,7 +16,7 @@ Puncher puncher;
 
 void initialize() {
 	pros::lcd::initialize();
-	puncher.tare();
+	puncher.tare(true);
 }
 
 /**

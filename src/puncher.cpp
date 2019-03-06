@@ -4,14 +4,16 @@
 Puncher::Puncher() {
   motor.setBrakeMode(AbstractMotor::brakeMode::hold);
   angler.setBrakeMode(AbstractMotor::brakeMode::hold);
-  tare();
+  tare(true);
 }
 
-void Puncher::tare() {
+void Puncher::tare(bool anglerTare) {
   motor.tarePosition();
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
-  angler.tarePosition();
-  angler.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
+  if (anglerTare) {
+    angler.tarePosition();
+    angler.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
+  }
 }
 
 void Puncher::update(Intake& intake) {
@@ -22,10 +24,10 @@ void Puncher::update(Intake& intake) {
 
       if (prevState != state) {
         prevState = state;
-        motor.move_relative(135, 100);
+        motor.move_absolute(135, 100);
       }
 
-      if (abs(motor.getPosition() - motor.getTargetPosition()) < 5) {
+      if (abs(motor.getPosition() - 135) < 5) {
         state = PuncherState::ready;
       }
       break;
@@ -45,9 +47,9 @@ void Puncher::update(Intake& intake) {
         prevState = state;
       }
 
-      if (limsw.changedToPressed()) {
+      if (limsw.isPressed()) {
         state = PuncherState::pullback;
-        tare();
+        tare(false);
 
       } else {
         motor.moveVelocity(100);
@@ -67,7 +69,7 @@ void Puncher::update(Intake& intake) {
         prevAnglerState = anglerState;
       }
 
-      if (abs(angler.getTargetPosition() - angler.getPosition()) < 2) {
+      if (abs(highFlagAngles[currentPosition] - angler.getPosition()) < 2) {
         anglerState = AnglerState::shootHigh;
       }
       break;
@@ -107,7 +109,7 @@ void Puncher::update(Intake& intake) {
         prevAnglerState = anglerState;
       }
 
-      if (abs(angler.getTargetPosition() - angler.getPosition()) < 2) {
+      if (abs(lowFlagAngles[currentPosition] - angler.getPosition()) < 2) {
         anglerState = AnglerState::shootLow;
       }
 
@@ -141,13 +143,15 @@ void Puncher::update(Intake& intake) {
 
     case (AnglerState::flipReset): {
       pros::lcd::print(3, "Angler: Resetting");
+      // TO-DO: Pull back puncher!
 
       if (prevAnglerState != anglerState) {
         prevAnglerState = anglerState;
         angler.moveAbsolute(0, 200);
+        motor.moveAbsolute(270, 100);
       }
 
-      if (abs(angler.getTargetPosition() - angler.getPosition()) < 5) {
+      if (abs(0 - angler.getPosition()) < 5 && abs(270 - motor.getPosition()) < 5) {
         anglerState = AnglerState::flipUp;
       }
 
@@ -159,10 +163,10 @@ void Puncher::update(Intake& intake) {
 
       if (prevAnglerState != anglerState) {
         prevAnglerState = anglerState;
-        angler.moveAbsolute(-60, 200);
+        angler.moveAbsolute(-120, 200);
       }
 
-      if (abs(angler.getTargetPosition() - angler.getPosition()) < 5) {
+      if (abs(-120 - angler.getPosition()) < 5) {
         anglerState = AnglerState::flipDown;
       }
 
@@ -171,13 +175,15 @@ void Puncher::update(Intake& intake) {
 
     case (AnglerState::flipDown): {
       pros::lcd::print(3, "Angler: Flipping Down");
+      // TO-DO: Push forward puncher!
 
       if (prevAnglerState != anglerState) {
         prevAnglerState = anglerState;
         angler.moveAbsolute(0, 200);
+        motor.moveAbsolute(135, 200);
       }
 
-      if (abs(angler.getTargetPosition() - angler.getPosition()) < 5) {
+      if (abs(0 - angler.getPosition()) < 5 && abs(135 - motor.getPosition()) < 5) {
         anglerState = AnglerState::idle;
       }
 

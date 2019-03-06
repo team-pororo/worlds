@@ -27,8 +27,8 @@ enum class AnglerState {
 // Position 2: Platforms-area field tile
 // Position 3: Behind Platforms
 // Position 4: Constant 45deg ("legacy mode")
-const int highFlagAngles[5] = {-0, -10, -20, -30, -30};
-const int lowFlagAngles[5] = {-10, -20, -30, -40, -30};
+const int highFlagAngles[5] = {-0, -30, -60, -90, -30};
+const int lowFlagAngles[5] = {-30, -60, -90, -120, -30};
 
 class Puncher {
 public:
@@ -54,7 +54,7 @@ public:
   AnglerState prevAnglerState = AnglerState::idle;
 
   Puncher();
-  void tare();
+  void tare(bool angleTare);
   void teleop(Intake& intake);
   void update(Intake& intake);
 };
