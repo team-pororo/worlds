@@ -2,6 +2,7 @@
 #include "chassis.h"
 #include "intake.h"
 #include "puncher.h"
+#include "autohandler.h"
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -22,11 +23,19 @@ extern Intake intake;
 extern Puncher puncher;
 extern Controller controller;
 
+extern AutoHandler autohandler;
+
+
 void opcontrol() {
-	while (true) {
+	for (int i = 0;; ++i) {
 		chassis.teleop(controller);
 		puncher.teleop(intake);
 		intake.teleop();
+
+		if (i % 10 == 0) {
+			autohandler.interface(GameState::Teleop);
+		}
+
 		pros::Task::delay(10);
 	}
 }

@@ -1,5 +1,6 @@
 #include "main.h"
 #include "chassis.h"
+#include "autohandler.h"
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -12,4 +13,9 @@
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+
+extern AutoHandler autohandler;
+
+void autonomous() {
+  autohandler.autonomous();
+}

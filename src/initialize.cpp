@@ -2,6 +2,7 @@
 #include "chassis.h"
 #include "intake.h"
 #include "puncher.h"
+#include "autohandler.h"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -13,6 +14,7 @@ Chassis chassis;
 Intake intake;
 Controller controller;
 Puncher puncher;
+AutoHandler autohandler = AutoHandler(controller, chassis, intake, puncher);
 
 void initialize() {
 	pros::lcd::initialize();
@@ -24,7 +26,12 @@ void initialize() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
+void disabled() {
+	while (true) {
+		autohandler.interface(GameState::Disabled);
+		pros::Task::delay(10);
+	}
+}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -35,4 +42,9 @@ void disabled() {}
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+	while (true) {
+		autohandler.interface(GameState::Initialize);
+		pros::Task::delay(10);
+	}
+}

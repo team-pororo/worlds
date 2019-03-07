@@ -47,11 +47,13 @@ public:
 
   PuncherState state = PuncherState::pullback;
   PuncherState prevState = PuncherState::punching;
+  int lastUpdate = 0;
 
   // Angler Double-Shot Positions
   int currentPosition = 0;
   AnglerState anglerState = AnglerState::idle;
   AnglerState prevAnglerState = AnglerState::idle;
+  int anglerLastUpdate = 0;
 
   Puncher();
   void tare(bool angleTare);

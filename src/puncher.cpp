@@ -25,9 +25,10 @@ void Puncher::update(Intake& intake) {
       if (prevState != state) {
         prevState = state;
         motor.move_absolute(135, 100);
+        lastUpdate = pros::c::millis();
       }
 
-      if (abs(motor.getPosition() - 135) < 5) {
+      if (abs(motor.getPosition() - 135) < 5 || pros::c::millis() - lastUpdate > 2000) {
         state = PuncherState::ready;
       }
       break;
@@ -37,6 +38,7 @@ void Puncher::update(Intake& intake) {
       pros::lcd::print(2, "Puncher: Ready");
       if (prevState != state) {
         prevState = state;
+        lastUpdate = pros::c::millis();
       }
       break;
     }
@@ -45,9 +47,10 @@ void Puncher::update(Intake& intake) {
       pros::lcd::print(2, "Puncher: Punching");
       if (prevState != state) {
         prevState = state;
+        lastUpdate = pros::c::millis();
       }
 
-      if (limsw.isPressed()) {
+      if (limsw.isPressed() || pros::c::millis() - lastUpdate > 2000) {
         state = PuncherState::pullback;
         tare(false);
 
@@ -67,9 +70,10 @@ void Puncher::update(Intake& intake) {
       if (prevAnglerState != anglerState) {
         angler.moveAbsolute(highFlagAngles[currentPosition], 200);
         prevAnglerState = anglerState;
+        anglerLastUpdate = pros::c::millis();
       }
 
-      if (abs(highFlagAngles[currentPosition] - angler.getPosition()) < 2) {
+      if (abs(highFlagAngles[currentPosition] - angler.getPosition()) < 2 || pros::c::millis() - lastUpdate > 2000) {
         anglerState = AnglerState::shootHigh;
       }
       break;
@@ -80,6 +84,7 @@ void Puncher::update(Intake& intake) {
       if (prevAnglerState != anglerState) {
         state = PuncherState::punching;
         prevAnglerState = anglerState;
+        anglerLastUpdate = pros::c::millis();
       }
 
       if (state == PuncherState::pullback) {
@@ -93,9 +98,10 @@ void Puncher::update(Intake& intake) {
       if (prevAnglerState != anglerState) {
         intake.setState(IntakeState::pulseInitial);
         prevAnglerState = anglerState;
+        anglerLastUpdate = pros::c::millis();
       }
 
-      if (intake.getState() == IntakeState::stopped && state == PuncherState::ready) {
+      if (intake.getState() == IntakeState::stopped && state == PuncherState::ready || pros::c::millis() - lastUpdate > 2000) {
         anglerState = AnglerState::aimLow;
       }
       break;
@@ -107,9 +113,10 @@ void Puncher::update(Intake& intake) {
       if (prevAnglerState != anglerState) {
         angler.moveAbsolute(lowFlagAngles[currentPosition], 200);
         prevAnglerState = anglerState;
+        anglerLastUpdate = pros::c::millis();
       }
 
-      if (abs(lowFlagAngles[currentPosition] - angler.getPosition()) < 2) {
+      if (abs(lowFlagAngles[currentPosition] - angler.getPosition()) < 2 || pros::c::millis() - lastUpdate > 2000) {
         anglerState = AnglerState::shootLow;
       }
 
@@ -122,6 +129,7 @@ void Puncher::update(Intake& intake) {
       if (prevAnglerState != anglerState) {
         state = PuncherState::punching;
         prevAnglerState = anglerState;
+        anglerLastUpdate = pros::c::millis();
       }
 
       if (state == PuncherState::pullback) {
@@ -136,6 +144,7 @@ void Puncher::update(Intake& intake) {
 
       if (prevAnglerState != anglerState) {
         prevAnglerState = anglerState;
+        anglerLastUpdate = pros::c::millis();
       }
 
       break;
@@ -149,9 +158,10 @@ void Puncher::update(Intake& intake) {
         prevAnglerState = anglerState;
         angler.moveAbsolute(0, 200);
         motor.moveAbsolute(270, 100);
+        anglerLastUpdate = pros::c::millis();
       }
 
-      if (abs(0 - angler.getPosition()) < 5 && abs(270 - motor.getPosition()) < 5) {
+      if (abs(0 - angler.getPosition()) < 5 && abs(270 - motor.getPosition()) < 5 || pros::c::millis() - lastUpdate > 2000) {
         anglerState = AnglerState::flipUp;
       }
 
@@ -164,9 +174,10 @@ void Puncher::update(Intake& intake) {
       if (prevAnglerState != anglerState) {
         prevAnglerState = anglerState;
         angler.moveAbsolute(-120, 200);
+        anglerLastUpdate = pros::c::millis();
       }
 
-      if (abs(-120 - angler.getPosition()) < 5) {
+      if (abs(-120 - angler.getPosition()) < 5 || pros::c::millis() - lastUpdate > 2000) {
         anglerState = AnglerState::flipDown;
       }
 
@@ -181,9 +192,10 @@ void Puncher::update(Intake& intake) {
         prevAnglerState = anglerState;
         angler.moveAbsolute(0, 200);
         motor.moveAbsolute(135, 200);
+        anglerLastUpdate = pros::c::millis();
       }
 
-      if (abs(0 - angler.getPosition()) < 5 && abs(135 - motor.getPosition()) < 5) {
+      if ((abs(0 - angler.getPosition()) < 5 && abs(135 - motor.getPosition()) < 5) || pros::c::millis() - lastUpdate > 2000) {
         anglerState = AnglerState::idle;
       }
 
