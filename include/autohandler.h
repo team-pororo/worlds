@@ -34,6 +34,12 @@ public:
   Intake& intake;
   Puncher& puncher;
 
+  ControllerButton leftAlliance = ControllerButton(ControllerDigital::L1);
+  ControllerButton rightAlliance = ControllerButton(ControllerDigital::R1);
+
+  ControllerButton leftRoutine = ControllerButton(ControllerDigital::L2);
+  ControllerButton rightRoutine = ControllerButton(ControllerDigital::R2);
+
   AutoHandler(Controller& co, Chassis& c, Intake& i, Puncher& p);
   void interface(GameState gamestate);
   void autonomous();

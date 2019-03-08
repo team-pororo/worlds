@@ -33,7 +33,7 @@ const int lowFlagAngles[5] = {-30, -60, -90, -120, -30};
 class Puncher {
 public:
   Motor motor = Motor(4, true, AbstractMotor::gearset::red);
-  Motor angler = Motor(5);
+  Motor angler = Motor(5, false, AbstractMotor::gearset::red);
   Vision vision = Vision(6);
   ADIButton limsw = ADIButton('A');
 

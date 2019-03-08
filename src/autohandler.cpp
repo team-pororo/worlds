@@ -38,6 +38,54 @@ void AutoHandler::interface(GameState gamestate) {
       }
 
       controller.setText(1, 0, "use triggr btns");
+
+      if (leftAlliance.changedToPressed() || rightAlliance.changedToPressed()) {
+        switch (alliance) {
+
+          case (Alliance::Red):
+          alliance = Alliance::Blue;
+          break;
+
+          case (Alliance::Blue):
+          alliance = Alliance::Red;
+          break;
+        }
+      }
+
+      if (leftRoutine.changedToPressed()) {
+        switch (routine) {
+          case (Routine::FrontTile): {
+            routine = Routine::Disabled;
+          }
+          case (Routine::BackTile): {
+            routine = Routine::FrontTile;
+          }
+          case (Routine::Skills): {
+            routine = Routine::BackTile;
+          }
+          case (Routine::Disabled): {
+            routine = Routine::Skills;
+          }
+        }
+      }
+
+      if (rightRoutine.changedToPressed()) {
+        switch (routine) {
+          case (Routine::FrontTile): {
+            routine = Routine::BackTile;
+          }
+          case (Routine::BackTile): {
+            routine = Routine::Skills;
+          }
+          case (Routine::Skills): {
+            routine = Routine::Disabled;
+          }
+          case (Routine::Disabled): {
+            routine = Routine::FrontTile;
+          }
+        }
+      }
+
     }
 
     case (GameState::Teleop): {
@@ -118,5 +166,5 @@ void AutoHandler::interface(GameState gamestate) {
 }
 
 void AutoHandler::autonomous() {
-
+  // Actually run the autonomous based on the contents of the alliance and routine vars.
 }
