@@ -5,6 +5,8 @@
 #include "chassis.h"
 #include "intake.h"
 #include "puncher.h"
+#include "angler.h"
+#include "doubleshots.h"
 
 enum class Alliance {
   Red,

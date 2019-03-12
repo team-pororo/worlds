@@ -14,11 +14,13 @@ Chassis chassis;
 Intake intake;
 Controller controller;
 Puncher puncher;
+Angler angler;
+DoubleShotHandler doubleShotHandler = DoubleShotHandler(puncher, angler, intake);
 AutoHandler autohandler = AutoHandler(controller, chassis, intake, puncher);
 
 void initialize() {
 	pros::lcd::initialize();
-	puncher.tare(true);
+	controller.clear();
 }
 
 /**

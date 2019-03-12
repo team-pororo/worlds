@@ -2,6 +2,8 @@
 #include "chassis.h"
 #include "intake.h"
 #include "puncher.h"
+#include "angler.h"
+#include "doubleshots.h"
 #include "autohandler.h"
 
 /**
@@ -21,6 +23,8 @@
 extern Chassis chassis;
 extern Intake intake;
 extern Puncher puncher;
+extern Angler angler;
+extern DoubleShotHandler doubleShotHandler;
 extern Controller controller;
 
 extern AutoHandler autohandler;
@@ -29,7 +33,7 @@ extern AutoHandler autohandler;
 void opcontrol() {
 	for (int i = 0;; ++i) {
 		chassis.teleop(controller);
-		puncher.teleop(intake);
+		doubleShotHandler.teleop();
 		intake.teleop();
 
 		if (i % 10 == 0) {

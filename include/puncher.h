@@ -2,7 +2,6 @@
 #define PUNCHER_H
 
 #include "main.h"
-#include "intake.h"
 
 enum class PuncherState {
   pullback,
@@ -10,55 +9,21 @@ enum class PuncherState {
   punching
 };
 
-enum class AnglerState {
-  aimHigh,
-  shootHigh,
-  loadSecondBall,
-  aimLow,
-  shootLow,
-  idle,
-  flipReset,
-  flipUp,
-  flipDown
-};
-
-// Position 0: Closest field tile
-// Position 1: Starting field tile
-// Position 2: Platforms-area field tile
-// Position 3: Behind Platforms
-// Position 4: Constant 45deg ("legacy mode")
-const int highFlagAngles[5] = {-0, -30, -60, -90, -30};
-const int lowFlagAngles[5] = {-30, -60, -90, -120, -30};
-
 class Puncher {
 public:
-  Motor motor = Motor(4, true, AbstractMotor::gearset::red);
-  Motor angler = Motor(5, false, AbstractMotor::gearset::red);
-  Vision vision = Vision(6);
+  MotorGroup motor = MotorGroup({
+    Motor(4, true, AbstractMotor::gearset::red),
+    Motor(5, false, AbstractMotor::gearset::red)
+  });
   ADIButton limsw = ADIButton('A');
-
-  ControllerButton buttons[5] = {ControllerButton(ControllerDigital::B),
-                                 ControllerButton(ControllerDigital::A),
-                                 ControllerButton(ControllerDigital::Y),
-                                 ControllerButton(ControllerDigital::X),
-                                 ControllerButton(ControllerDigital::R1)};
-
-  ControllerButton flip = ControllerButton(ControllerDigital::R2);
 
   PuncherState state = PuncherState::pullback;
   PuncherState prevState = PuncherState::punching;
   int lastUpdate = 0;
 
-  // Angler Double-Shot Positions
-  int currentPosition = 0;
-  AnglerState anglerState = AnglerState::idle;
-  AnglerState prevAnglerState = AnglerState::idle;
-  int anglerLastUpdate = 0;
-
   Puncher();
-  void tare(bool angleTare);
-  void teleop(Intake& intake);
-  void update(Intake& intake);
+  void tare();
+  void update();
 };
 
 #endif

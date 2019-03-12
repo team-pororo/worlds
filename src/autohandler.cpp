@@ -166,5 +166,104 @@ void AutoHandler::interface(GameState gamestate) {
 }
 
 void AutoHandler::autonomous() {
+  /*
   // Actually run the autonomous based on the contents of the alliance and routine vars.
+  if (routine == Routine::FrontTile || routine == Routine::Skills) {
+
+    // FIRST DOUBLE SHOT - LEFT FLAGPOLE
+
+    intake.state = IntakeState::forward;
+    intake.update();
+
+    // DRIVE 42"
+    // DRIVE -42"
+
+    intake.state = IntakeState::stopped;
+    intake.update();
+
+    // TURN -90deg
+
+    puncher.currentPosition = 1;
+    puncher.anglerState = AnglerState::aimHigh;
+    while (puncher.anglerState != AnglerState::idle) {
+      puncher.update(intake);
+    }
+
+    // SECOND DOUBLE SHOT - CENTER FLAGPOLE
+
+    // TURN 45deg
+    // DRIVE 24"
+    intake.state = IntakeState::forward;
+    intake.update();
+    // ARM DOWN
+    intake.state = IntakeState::stopped;
+    intake.update();
+    puncher.currentPosition = 1;
+    puncher.anglerState = AnglerState::aimHigh;
+    while (puncher.anglerState != AnglerState::idle) {
+      puncher.update(intake);
+    }
+
+    // FLIP CAP
+
+    intake.state = IntakeState::reverse;
+    intake.update();
+    // DRIVE 24"
+
+    if (routine == Routine::FrontTile) {
+      // GET LOW FLAG
+
+      // TURN 15deg
+      // DRIVE 18"
+      // TURN -45deg
+      // DRIVE 12"
+      // DRIVE -24"
+    } else if (routine == Routine::Skills) {
+      // GET ON PLATFORM
+
+      // DRIVE -24"
+      // Turn -45deg
+      // DRIVE -24"
+      // Turn -90deg
+      // DRIVE -60"
+    }
+  } else if (routine == Routine::BackTile) {
+    // FIRST DOUBLE SHOT - CENTER FLAGPOLE
+
+    intake.state = IntakeState::forward;
+    intake.update();
+    // DRIVE 42"
+    // TURN -90deg
+    intake.state = IntakeState::stopped;
+    intake.update();
+    // DOUBLE SHOT
+
+    // SECOND DOUBLE SHOT - RIGHT FLAGPOLE
+
+    // Turn 180deg
+    // DRIVE 12"
+
+    intake.state = IntakeState::forward;
+    intake.update();
+
+    // ARM DOWN
+
+    intake.state = IntakeState::reverse;
+    intake.update();
+
+    // DRIVE 24"
+
+    intake.state = IntakeState::forward;
+    intake.update();
+
+    // Turn -150deg
+
+    intake.state = IntakeState::stopped;
+    intake.update();
+
+    // DOUBLE SHOT
+  } else if (routine == Routine::Disabled) {
+    // IDK LOL
+  }
+  */
 }
