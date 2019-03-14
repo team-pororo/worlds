@@ -31,6 +31,8 @@ extern AutoHandler autohandler;
 
 
 void opcontrol() {
+	angler.moveToAngle(55); // Minimum angle for working puncher retraction
+	angler.waitUntilSettled();
 	for (int i = 0;; ++i) {
 		chassis.teleop(controller);
 		doubleShotHandler.teleop();
@@ -38,6 +40,9 @@ void opcontrol() {
 
 		if (i % 10 == 0) {
 			autohandler.interface(GameState::Teleop);
+			pros::lcd::print(5, "Intake Ball: %04d", intake.ballPresent(BallPosition::intake));
+			pros::lcd::print(6, "Trajectory Ball: %04d", intake.ballPresent(BallPosition::trajectory));
+			pros::lcd::print(7, "Puncher Ball: %04d", intake.ballPresent(BallPosition::puncher));
 		}
 
 		pros::Task::delay(10);

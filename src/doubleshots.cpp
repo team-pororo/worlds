@@ -3,6 +3,50 @@
 #include "angler.h"
 #include "intake.h"
 
+void DoubleShotHandler::readyIntakeManual() {
+  // run the One-Touch-Made-Ready intake routine, set flag if ready.
+
+  if (pros::c::millis() - otmrMillis > 2000) {
+    intakeReady = true;
+    return;
+  }
+
+
+  if (intake.ballPresent(BallPosition::puncher)) {
+    if (intake.ballPresent(BallPosition::trajectory)) {
+      intake.moveSpeed(200); // Get the second ball out of the way
+      intakeReady = false;
+    } else {
+      intake.moveSpeed(0); // Ready to fire
+      intakeReady = true;
+    }
+  } else {
+    intake.moveSpeed(-200); // Load the initial ball
+    intakeReady = false;
+  }
+}
+
+// One-touch-made-ready intake
+// If set to true, tap button to run macro
+// If set to false, hold button to run macro
+#define OTMR_WAIT_FOR_COMPLETION true
+
+void DoubleShotHandler::otmrIntake() {
+  if (otmrButton.isPressed()) {
+    otmrMillis = pros::c::millis();
+  }
+
+#if OTMR_WAIT_FOR_COMPLETION
+  if (otmrButton.isPressed() || !intakeReady) {
+
+#else
+  if (otmrButton.isPressed()) {
+
+#endif
+    readyIntakeManual();
+  }
+}
+
 void DoubleShotHandler::increment() {
   // Hackish but it works.
   prev_state = state;
@@ -111,15 +155,18 @@ void DoubleShotHandler::teleop() {
   update();
   puncher.update();
   if (state == DoubleShotState::idle) {
-    for (int i = 0; i < 4; ++i) {
-      if (zoneButtons[i].isPressed()) {
-        currentPosition = i;
-        state = DoubleShotState::readyIntakeHigh;
+    otmrIntake();
+    if (intakeReady) {
+      for (int i = 0; i < 4; ++i) {
+        if (zoneButtons[i].isPressed()) {
+          currentPosition = i;
+          state = DoubleShotState::readyIntakeHigh;
+        }
       }
-    }
-    if (legacyButton.isPressed()) {
-      currentPosition = 4;
-      state = DoubleShotState::aimLow;
+      if (legacyButton.isPressed()) {
+        currentPosition = 4;
+        state = DoubleShotState::aimLow;
+      }
     }
   }
 }

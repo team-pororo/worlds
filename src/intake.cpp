@@ -53,7 +53,7 @@ bool Intake::ballPresent(BallPosition position) {
     return false;
   }
 
-  if (ball.width < 400) {
+  if (ball.width < 200) {
     return false;
   }
 

@@ -41,9 +41,14 @@ public:
 
   ControllerButton legacyButton = ControllerButton(ControllerDigital::R1);
 
+  ControllerButton otmrButton = ControllerButton(ControllerDigital::R2);
+
   DoubleShotState state = DoubleShotState::idle;
   DoubleShotState prev_state = DoubleShotState::shootLow;
   int currentPosition = 0;
+
+  bool intakeReady = true; // to be used with one-touch-made-ready intake
+  int otmrMillis = 0; // timeout
 
   void increment();
 
@@ -54,6 +59,9 @@ public:
 
   bool isSettled();
   void waitUntilSettled();
+
+  void readyIntakeManual();
+  void otmrIntake();
 
   void update();
   void teleop();

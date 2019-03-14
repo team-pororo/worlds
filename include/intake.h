@@ -18,7 +18,7 @@ public:
   Vision vision_puncher = Vision(13);
 
   pros::vision_signature_s_t yellow =
-          pros::Vision::signature_from_utility(1,1149,2417,1783,-6003,-4745,-5374,3,0);
+          pros::Vision::signature_from_utility(1,579,1399,989,-4303,-3339,-3821,3,0);
 
   ControllerButton forwardButton = ControllerButton(ControllerDigital::L1);
   ControllerButton reverseButton = ControllerButton(ControllerDigital::L2);
