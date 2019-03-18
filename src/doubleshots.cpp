@@ -48,14 +48,16 @@ void DoubleShotHandler::otmrIntake() {
 }
 
 void DoubleShotHandler::increment() {
-  // Hackish but it works.
-  prev_state = state;
-  state = static_cast<DoubleShotState>(static_cast<int>(state) + 1);
+  loopIndex++;
+  if (loopIndex >= currentLoop->size()) {
+    loopIndex = currentLoop->size() - 1; // Don't go past the end
+  }
+  firstRun = true;
 }
 
-void DoubleShotHandler::readyIntake() {
-  if (prev_state != state) {
-    prev_state = state;
+void DoubleShotHandler::clearIntake() {
+  if (firstRun) {
+    firstRun = false;
   }
   if (intake.ballPresent(BallPosition::trajectory)) {
     intake.moveSpeed(200);
@@ -66,8 +68,8 @@ void DoubleShotHandler::readyIntake() {
 }
 
 void DoubleShotHandler::intakeBall() {
-  if (prev_state != state) {
-    prev_state = state;
+  if (firstRun) {
+    firstRun = false;
   }
   if (!intake.ballPresent(BallPosition::puncher)) {
     intake.moveSpeed(-200);
@@ -77,14 +79,14 @@ void DoubleShotHandler::intakeBall() {
   }
 }
 
-void DoubleShotHandler::aim(int position, bool high) {
-  if (prev_state != state) {
-    prev_state = state;
+void DoubleShotHandler::aim() {
+  if (firstRun) {
+    firstRun = false;
   }
-  if (high) {
+  if (currentLoop->at(loopIndex).flag == Flag::high) {
     angler.moveToAngle(highFlagAngles[position]);
   } else {
-    angler.moveToAngle(lowFlagAngles[position]);
+    angler.moveToAngle(midFlagAngles[position]);
   }
   if (angler.isSettled()) {
     increment();
@@ -92,8 +94,8 @@ void DoubleShotHandler::aim(int position, bool high) {
 }
 
 void DoubleShotHandler::shoot() {
-  if (prev_state != state) {
-    prev_state = state;
+  if (firstRun) {
+    firstRun = false;
     puncher.state = PuncherState::punching;
   }
   puncher.update();
@@ -102,50 +104,112 @@ void DoubleShotHandler::shoot() {
   }
 }
 
+void DoubleShotHandler::idle() {
+  currentLoop = &idleLoop;
+  loopIndex = 0;
+  firstRun = false;
+
+  for (int i = 0; i < 4; ++i) {
+    if (zoneButtons[i].isPressed()) {
+      position = i;
+      currentLoop = &doubleShotLoop;
+      loopIndex = 0;
+    }
+  }
+
+  if (legacyButton.isPressed()) {
+    position = 4;
+    currentLoop = &singleShotLoop;
+    loopIndex = 0;
+  }
+
+  if (otmrButton.isPressed()) {
+    position = -1;
+    currentLoop = &otmrLoop;
+    loopIndex = 0;
+  }
+}
+
 void DoubleShotHandler::update() {
-  switch (state) {
-    case (DoubleShotState::idle):
-    pros::lcd::print(3, "DoubleShot: Idle");
+  // DIAGNOSTIC INFO
+  if (currentLoop == &doubleShotLoop) {
+    pros::lcd::print(4, "Doing Double Shot");
+  } else if (currentLoop == &singleShotLoop) {
+    pros::lcd::print(4, "Doing Single Shot");
+  } else if (currentLoop == &idleLoop) {
+    pros::lcd::print(4, "Idle");
+  } else {
+    pros::lcd::print(4, "Unknown State");
+  }
+
+  switch (currentLoop->at(loopIndex).state) {
+    case (DSState::intakeBall):
+    pros::lcd::print(5, "Intaking Ball");
     break;
 
-    case (DoubleShotState::readyIntakeHigh):
-    pros::lcd::print(3, "DoubleShot: Clearing Intake to Shoot High");
-    readyIntake();
+    case (DSState::clearIntake):
+    pros::lcd::print(5, "Clearing Intake");
     break;
 
-    case (DoubleShotState::aimHigh):
-    pros::lcd::print(3, "DoubleShot: Aiming at High Flag");
-    aim(currentPosition, true);
+    case (DSState::aim):
+    pros::lcd::print(5, "Aiming");
     break;
 
-    case (DoubleShotState::shootHigh):
-    pros::lcd::print(3, "DoubleShot: Shooting at High Flag");
-    shoot();
+    case (DSState::shoot):
+    pros::lcd::print(5, "Shooting");
     break;
 
-    case (DoubleShotState::intakeBallLow):
-    pros::lcd::print(3, "DoubleShot: Intaking Ball to Shoot Low");
+    case (DSState::idle):
+    pros::lcd::print(5, "Idle");
+    break;
+
+    default:
+    pros::lcd::print(5, "Unknown State");
+  }
+
+  switch (currentLoop->at(loopIndex).flag) {
+    case (Flag::high):
+    pros::lcd::print(6, "High Flag");
+    break;
+
+    case (Flag::mid):
+    pros::lcd::print(6, "Middle Flag");
+    break;
+
+    case (Flag::low):
+    pros::lcd::print(6, "Low Flag");
+    break;
+  }
+
+  switch (currentLoop->at(loopIndex).state) {
+    case (DSState::intakeBall):
     intakeBall();
     break;
 
-    case (DoubleShotState::aimLow):
-    pros::lcd::print(3, "DoubleShot: Aiming at Low Flag");
-    aim(currentPosition, false);
+    case (DSState::clearIntake):
+    clearIntake();
     break;
 
-    case (DoubleShotState::shootLow):
-    pros::lcd::print(3, "DoubleShot: Shooting at Low Flag");
+    case (DSState::aim):
+    aim();
+    break;
+
+    case (DSState::shoot):
     shoot();
+    break;
+
+    case (DSState::idle):
+    idle();
     break;
   }
 }
 
 bool DoubleShotHandler::isSettled() {
-  return (state == DoubleShotState::idle);
+  return (currentLoop == &idleLoop);
 }
 
 void DoubleShotHandler::waitUntilSettled() {
-  while (state != DoubleShotState::idle) {
+  while (!isSettled()) {
     update();
     pros::Task::delay(10);
   }
@@ -154,19 +218,4 @@ void DoubleShotHandler::waitUntilSettled() {
 void DoubleShotHandler::teleop() {
   update();
   puncher.update();
-  if (state == DoubleShotState::idle) {
-    otmrIntake();
-    if (intakeReady) {
-      for (int i = 0; i < 4; ++i) {
-        if (zoneButtons[i].isPressed()) {
-          currentPosition = i;
-          state = DoubleShotState::readyIntakeHigh;
-        }
-      }
-      if (legacyButton.isPressed()) {
-        currentPosition = 4;
-        state = DoubleShotState::aimLow;
-      }
-    }
-  }
 }
