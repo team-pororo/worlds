@@ -10,9 +10,11 @@
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-Chassis chassis;
-Intake intake;
+ 
 Controller controller;
+
+Chassis chassis = Chassis(controller);
+Intake intake;
 Puncher puncher;
 Angler angler;
 DoubleShotHandler doubleShotHandler = DoubleShotHandler(puncher, angler, intake);
