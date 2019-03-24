@@ -4,7 +4,9 @@
 #include "puncher.h"
 #include "angler.h"
 #include "doubleshots.h"
-#include "autohandler.h"
+#include "autoselect.h"
+#include "watchdog.h"
+#include "controllerLCD.h"
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -26,25 +28,21 @@ extern Puncher puncher;
 extern Angler angler;
 extern DoubleShotHandler doubleShotHandler;
 extern Controller controller;
-
-extern AutoHandler autohandler;
-
+extern AutoSelector autoSelector;
+extern Watchdog watchdog;
+extern ControllerLCD controllerLCD;
 
 void opcontrol() {
-	angler.moveToAngle(55); // Minimum angle for working puncher retraction
-	angler.waitUntilSettled();
+	watchdog.start();
+	//angler.moveToAngle(55); // Minimum angle for working puncher retraction
+	//angler.waitUntilSettled();
 	for (int i = 0;; ++i) {
 		chassis.teleop();
 		doubleShotHandler.teleop();
 		intake.teleop();
-
-		if (i % 10 == 0) {
-			autohandler.interface(GameState::Teleop);
-			pros::lcd::print(1, "Intake Ball: %04d", intake.ballPresent(BallPosition::intake));
-			pros::lcd::print(2, "Trajectory Ball: %04d", intake.ballPresent(BallPosition::trajectory));
-			pros::lcd::print(3, "Puncher Ball: %04d", intake.ballPresent(BallPosition::puncher));
-		}
-
-		pros::Task::delay(10);
+		watchdog.teleop();
+		autoSelector.teleop();
+		controllerLCD.teleop();
+		pros::Task::delay(20);
 	}
 }

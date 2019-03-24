@@ -4,6 +4,8 @@
 #include "main.h"
 
 #define DRIVE_ARCADE false
+#define DRIVE_VELOCITY true
+#define DRIVE_BRAKES false
 
 #define WHEEL_DIAM 4.1_in
 #define WHEELBASE_WIDTH 14_in
@@ -20,11 +22,16 @@ public:
   Controller& controller;
   ControllerButton brakeButton = ControllerButton(ControllerDigital::left);
 
-  Chassis(Controller c);
+  bool brakesEngaged = false;
 
+  Chassis(Controller& c);
+
+  void update();
   void driveStraight(QLength distance);
   void turnInPlace(QAngle angle);
   void driveArc(QLength radius, QAngle angle);
+
+  void driveManual();
 
   void teleop();
 };

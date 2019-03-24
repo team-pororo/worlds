@@ -14,7 +14,7 @@ void Puncher::update() {
   // Update Puncher
   switch (state) {
     case (PuncherState::pullback): {
-      pros::lcd::print(2, "Puncher: Pulling Back");
+      pros::lcd::print(5, "Puncher: Pulling Back");
 
       if (prevState != state) {
         prevState = state;
@@ -29,7 +29,7 @@ void Puncher::update() {
     }
 
     case (PuncherState::ready): {
-      pros::lcd::print(2, "Puncher: Ready");
+      pros::lcd::print(5, "Puncher: Ready");
       if (prevState != state) {
         prevState = state;
         lastUpdate = pros::c::millis();
@@ -38,7 +38,7 @@ void Puncher::update() {
     }
 
     case (PuncherState::punching): {
-      pros::lcd::print(2, "Puncher: Punching");
+      pros::lcd::print(5, "Puncher: Punching");
       if (prevState != state) {
         prevState = state;
         lastUpdate = pros::c::millis();

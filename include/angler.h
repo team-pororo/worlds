@@ -11,6 +11,7 @@ public:
   double targetAngle = 0;
 
   Angler();
+  void update();
   void calibrate();
   void moveToAngle(double angle);
   bool isSettled();

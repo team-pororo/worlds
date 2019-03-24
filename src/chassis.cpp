@@ -1,7 +1,8 @@
 #include "chassis.h"
 
-Chassis::Chassis(Controller c) : controller(c) {
-  drive.setBrakeMode(AbstractMotor::brakeMode::hold);
+#include <cstring>
+
+Chassis::Chassis(Controller& c) : controller(c) {
   left.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
   right.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
 }
@@ -47,24 +48,91 @@ void Chassis::driveArc(QLength radius, QAngle angle) {
   right.moveRelative((distance_r / (WHEEL_DIAM * M_PI)).getValue() * 360, rpm_r.convert(rpm));
 }
 
-void Chassis::teleop() {
-  if (brakeButton.isPressed()) {
-    pros::lcd::print(0, "Chassis: Braking");
+void Chassis::driveManual() {
+  double x, y, v, w, r, l;
 
-    drive.stop(); // hammertime
+  #if DRIVE_ARCADE
+
+  y = controller.getAnalog(ControllerAnalog::rightY);
+  x = -controller.getAnalog(ControllerAnalog::leftX);
+  v = (127-abs(x)) * (y/127) + y;
+  w = (127-abs(y)) * (x/127) + x;
+  r = (v + w) / 2;
+  l = (v - w) / 2;
+
+  #else
+
+  l = controller.getAnalog(ControllerAnalog::leftY);
+  r = controller.getAnalog(ControllerAnalog::rightY);
+
+  #endif
+
+  if (abs(l) < 0.05) {
+    l = 0; // 5% deadband
+  }
+  if (abs(r) < 0.05) {
+    r = 0; // 5% deadband
+  }
+
+  #if DRIVE_VELOCITY
+
+  r *= 200;
+  l *= 200;
+  left.moveVelocity(l);
+  right.moveVelocity(r);
+
+  #else
+
+  r *= 12000;
+  l *= 12000;
+  left.moveVoltage(l);
+  right.moveVoltage(r);
+
+  #endif
+}
+
+void Chassis::update() {
+  std::string diagnostics = "Chsis: ";
+  if (brakesEngaged) {
+    diagnostics += "Brk: On ";
   } else {
-    #if DRIVE_ARCADE
-    pros::lcd::print(0, "Chassis: Driving Arcade");
-    #else
-    pros::lcd::print(0, "Chassis: Driving Tank");
-    #endif
+    diagnostics += "Brk: No ";
+  }
 
-    #if DRIVE_ARCADE
-    drive.arcade(controller.getAnalog(ControllerAnalog::rightY),
-                 controller.getAnalog(ControllerAnalog::leftX));
+  #if DRIVE_ARCADE
+  diagnostics += "Dr: CADE ";
+  #else
+  diagnostics += "Dr: TANK ";
+  #endif
+
+  #if DRIVE_VELOCITY
+  diagnostics += "Vel: On ";
+  #else
+  diagnostics += "Vel: No ";
+  #endif
+
+  #if DRIVE_BRAKES
+  diagnostics += "DrBr: On ";
+  #else
+  diagnostics += "DrBr: No ";
+  #endif
+
+  pros::lcd::print(2, diagnostics.c_str());
+}
+
+void Chassis::teleop() {
+  update();
+  if (brakeButton.isPressed()) {
+    drive.setBrakeMode(AbstractMotor::brakeMode::hold);
+    drive.stop(); // hammertime
+    brakesEngaged = true;
+  } else {
+    #if DRIVE_BRAKES
+    drive.setBrakeMode(AbstractMotor::brakeMode::hold);
     #else
-    drive.tank(controller.getAnalog(ControllerAnalog::leftY),
-               controller.getAnalog(ControllerAnalog::rightY));
+    drive.setBrakeMode(AbstractMotor::brakeMode::coast);
     #endif
+    driveManual();
+    brakesEngaged = false;
   }
 };

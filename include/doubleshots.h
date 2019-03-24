@@ -20,6 +20,7 @@ enum class DSState {
   intakeBall,
   clearIntake,
   aim,
+  waitForAim,
   shoot,
   idle
 };
@@ -37,13 +38,32 @@ public:
 };
 
 const std::vector<dss_t> doubleShotLoop = {
-  {DSState::clearIntake, Flag::high},
   {DSState::aim, Flag::high},
+  {DSState::clearIntake, Flag::high},
+  {DSState::waitForAim, Flag::high},
   {DSState::shoot, Flag::high},
+  {DSState::aim, Flag::mid},
   {DSState::intakeBall, Flag::mid},
   {DSState::clearIntake, Flag::mid},
-  {DSState::aim, Flag::low},
-  {DSState::shoot, Flag::low},
+  {DSState::waitForAim, Flag::mid},
+  {DSState::shoot, Flag::mid},
+  {DSState::idle, Flag::low}
+};
+
+const std::vector<dss_t> highShotLoop = {
+  {DSState::aim, Flag::high},
+  {DSState::clearIntake, Flag::high},
+  {DSState::waitForAim, Flag::high},
+  {DSState::shoot, Flag::high},
+  {DSState::idle, Flag::low}
+};
+
+const std::vector<dss_t> midShotLoop = {
+  {DSState::aim, Flag::mid},
+  {DSState::intakeBall, Flag::mid},
+  {DSState::clearIntake, Flag::mid},
+  {DSState::waitForAim, Flag::mid},
+  {DSState::shoot, Flag::mid},
   {DSState::idle, Flag::low}
 };
 
@@ -52,7 +72,7 @@ const std::vector<dss_t> singleShotLoop = {
   {DSState::clearIntake, Flag::mid},
   {DSState::aim, Flag::mid},
   {DSState::shoot, Flag::mid},
-  {DSState::idle, Flag::mid}
+  {DSState::idle, Flag::low}
 };
 
 const std::vector<dss_t> otmrLoop = {
@@ -67,9 +87,9 @@ const std::vector<dss_t> idleLoop = {
 
 class DoubleShotHandler {
 public:
-  Puncher puncher;
-  Angler angler;
-  Intake intake;
+  Puncher& puncher;
+  Angler& angler;
+  Intake& intake;
 
   DoubleShotHandler(Puncher& p, Angler& a, Intake& i) : puncher(p), angler(a), intake(i) {};
 
@@ -91,14 +111,15 @@ public:
 
   bool firstRun; // Flag set whenever a new state is selected
 
-  bool intakeReady = true; // to be used with one-touch-made-ready intake
-  int otmrMillis = 0; // timeout
+  int lastUpdateMillis = 0;
 
   void increment();
 
+  void detectBall();
   void intakeBall();
   void clearIntake();
   void aim();
+  void waitForAim();
   void shoot();
   void idle(); // wait for controller press
 

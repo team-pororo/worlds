@@ -56,6 +56,10 @@ void Angler::moveToAngle(double angle) {
   motor.moveAbsolute(targetAngle, 100);
 }
 
+void Angler::update() {
+  pros::lcd::print(4, "Angler: CurrentAngl: %03d TargetAngl: %03d", (int)motor.getPosition(), (int)targetAngle);
+}
+
 bool Angler::isSettled() {
   return (abs(motor.getPosition() - targetAngle) < 5);
 }

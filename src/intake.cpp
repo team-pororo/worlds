@@ -1,6 +1,8 @@
 #include "intake.h"
 #include "main.h"
 
+#include <string.h>
+
 Intake::Intake() {
   motor.setBrakeMode(AbstractMotor::brakeMode::hold);
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
@@ -33,7 +35,7 @@ void Intake::waitUntilSettled() {
   }
 }
 
-bool Intake::ballPresent(BallPosition position) {
+bool Intake::ballPresentRaw(BallPosition position) {
   pros::vision_object_s_t ball;
   switch (position) {
     case (BallPosition::intake):
@@ -60,6 +62,39 @@ bool Intake::ballPresent(BallPosition position) {
   return true;
 }
 
+bool Intake::ballPresent(BallPosition position) {
+  switch (position) {
+    case (BallPosition::intake):
+    return (filter_low.filter(ballPresentRaw(position)) > 0.5);
+    break;
+
+    case (BallPosition::trajectory):
+    return (filter_high.filter(ballPresentRaw(position)) > 0.5);
+    break;
+
+    case (BallPosition::puncher):
+    return (filter_puncher.filter(ballPresentRaw(position)) > 0.5);
+    break;
+  }
+}
+
+void Intake::update() {
+  pros::lcd::print(
+    3,
+    "Intake: Low: (%01d,%01d) Hi: (%01d,%01d) Pnch: (%01d,%01d)",
+    ballPresentRaw(BallPosition::intake),
+    ballPresent(BallPosition::intake),
+    ballPresentRaw(BallPosition::trajectory),
+    ballPresent(BallPosition::trajectory),
+    ballPresentRaw(BallPosition::puncher),
+    ballPresent(BallPosition::puncher)
+  );
+}
+
+bool Intake::getFull() {
+  return (ballPresent(BallPosition::puncher) && (ballPresent(BallPosition::intake) || ballPresent(BallPosition::trajectory)));
+}
+
 void Intake::teleop() {
   if (manualControl) {
     if (targetSpeed == 0) {
@@ -69,10 +104,19 @@ void Intake::teleop() {
         moveSpeed(200);
       }
     } else if (targetSpeed < 0) {
+      bool newFull = getFull();
+
       if (forwardButton.changedToPressed()) {
         moveSpeed(0);
       } else if (reverseButton.changedToPressed()) {
         moveSpeed(200);
+
+      } else if (newFull != full && newFull) { // If the intake just became full
+        moveSpeed(0);
+        full = true;
+
+      } else if (getFull() != full) {
+        full = false;
       }
     } else if (targetSpeed > 0) {
       if (forwardButton.changedToPressed()) {

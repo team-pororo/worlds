@@ -1,6 +1,6 @@
 #include "main.h"
 #include "chassis.h"
-#include "autohandler.h"
+#include "autoselect.h"
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -14,8 +14,8 @@
  * from where it left off.
  */
 
-extern AutoHandler autohandler;
+extern AutoSelector autoSelector;
 
 void autonomous() {
-  autohandler.autonomous();
+
 }

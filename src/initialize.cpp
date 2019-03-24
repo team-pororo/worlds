@@ -2,7 +2,10 @@
 #include "chassis.h"
 #include "intake.h"
 #include "puncher.h"
-#include "autohandler.h"
+#include "doubleshots.h"
+#include "autoselect.h"
+#include "watchdog.h"
+#include "controllerLCD.h"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -10,19 +13,36 @@
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
- 
-Controller controller;
+
+Controller controller = Controller(ControllerId::master);
 
 Chassis chassis = Chassis(controller);
 Intake intake;
 Puncher puncher;
 Angler angler;
 DoubleShotHandler doubleShotHandler = DoubleShotHandler(puncher, angler, intake);
-AutoHandler autohandler = AutoHandler(controller, chassis, intake, puncher);
+AutoSelector autoSelector;
+Watchdog watchdog = Watchdog(controller);
+ControllerLCD controllerLCD = ControllerLCD(controller, autoSelector, watchdog);
+
+void btn0() {
+	autoSelector.btn0();
+}
+void btn1() {
+	autoSelector.btn1();
+}
+void btn2() {
+	autoSelector.btn2();
+}
 
 void initialize() {
 	pros::lcd::initialize();
-	controller.clear();
+	if (!pros::competition::is_connected()) {
+		controllerLCD.init();
+	}
+	pros::lcd::register_btn0_cb(btn0);
+	pros::lcd::register_btn1_cb(btn1);
+	pros::lcd::register_btn2_cb(btn2);
 }
 
 /**
@@ -30,12 +50,7 @@ void initialize() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {
-	while (true) {
-		autohandler.interface(GameState::Disabled);
-		pros::Task::delay(10);
-	}
-}
+void disabled() {}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -47,8 +62,6 @@ void disabled() {
  * starts.
  */
 void competition_initialize() {
-	while (true) {
-		autohandler.interface(GameState::Initialize);
-		pros::Task::delay(10);
-	}
+	controllerLCD.init();
+	autoSelector.runSelector();
 }
