@@ -1,67 +1,54 @@
 #include "angler.h"
 
+const double kP = 0.2;
+const double kI = 0.0002;
+const double kD = 0.001;
+
 Angler::Angler() {
   motor.setBrakeMode(AbstractMotor::brakeMode::hold);
-  calibrate();
+  motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
+  lastError = pot.get() - targetTicks;
 }
 
-void Angler::calibrate() {
-  motor.tarePosition();
-  motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
+double Angler::getCurrentAngle() {
+  double reading = pot.get();
+  // Formula contructed on the following data:
+  // Angle = 55 deg -> Pot ticks = 1000
+  // Angle = 30 deg -> Pot ticks = 1370
+  return (-5/64 * reading + 4385/32);
 }
 
 void Angler::moveToAngle(double angle) {
-  // The following constants were arrived at through regression based
-  // on 5 tested data points. It should be "pretty good".
-
-  // Third degree regression seems "good enough" (+/- 2 degrees)
-
-  // This maps the observed angle to the motor shaft angle.
-
-  // INITIAL TEST POINTS:
-  // x = desired puncher angle
-  // y = actual motor shaft angle
-  /*
-  x  y
-  55 0
-  50 20
-  47 40
-  36 60
-  31 80
-  27 100
-  25 120
-  */
-  const double a = -8.4825e-3;
-  const double b =  1.0498;
-  const double c = -45.350;
-  const double d =  728.59;
-
-  angle = a * (angle*angle*angle) + b * (angle*angle)
-                    + c * angle + d;
-
-  if (angle < 0) {
-    angle = 0;
-  }
-
-  if (angle > 120) {
-    angle = 120;
-  }
-
-  if (angle == targetAngle) {
-    return; // don't clog up the motor link
-  }
-
-  targetAngle = angle;
-
-  motor.moveAbsolute(targetAngle, 100);
+  targetTicks = (-64/5 * angle + 1754);
+  totalError = 0;
 }
 
-void Angler::update() {
-  pros::lcd::print(4, "Angler: CurrentAngl: %03d TargetAngl: %03d", (int)motor.getPosition(), (int)targetAngle);
+void Angler::runPID(void* self_p) {
+  Angler* self = (Angler*)self_p;
+  for (;;) {
+
+    pros::lcd::print(4, "Angler: CurrentAngl: %04d TargetAngl: %04d", (int)self->pot.get(), self->targetTicks);
+
+    double reading = self->pot.get();
+    double error = reading - self->targetTicks;
+    self->totalError += error;
+
+    double speed = error * kP;
+    speed += self->totalError * kI;
+    speed += (error - self->lastError) * kD;
+    pros::lcd::print(4, "Angler Speed: %03d Error: %03d", (int)speed, (int)error);
+
+    self->motor.moveVelocity(-speed);
+
+    self->lastError = error;
+
+
+    pros::Task::delay(20);
+  }
 }
 
 bool Angler::isSettled() {
-  return (abs(motor.getPosition() - targetAngle) < 5);
+  return (abs(pot.get() - targetTicks) < 10);
 }
 
 void Angler::waitUntilSettled() {

@@ -2,7 +2,8 @@
 #include "chassis.h"
 #include "intake.h"
 #include "puncher.h"
-#include "doubleshots.h"
+#include "twobar.h"
+#include "shothandler.h"
 #include "autoselect.h"
 #include "watchdog.h"
 #include "controllerLCD.h"
@@ -20,7 +21,8 @@ Chassis chassis = Chassis(controller);
 Intake intake;
 Puncher puncher;
 Angler angler;
-DoubleShotHandler doubleShotHandler = DoubleShotHandler(puncher, angler, intake);
+TwoBar twobar;
+ShotHandler shotHandler = ShotHandler(puncher, angler, intake, twobar);
 AutoSelector autoSelector;
 Watchdog watchdog = Watchdog(controller);
 ControllerLCD controllerLCD = ControllerLCD(controller, autoSelector, watchdog);
@@ -36,8 +38,18 @@ void btn2() {
 }
 
 void initialize() {
+	pros::Task PIDtask(Angler::runPID, &angler);
+	pros::Task VisTask(Intake::runVision, &intake);
+
+	pros::task_t shootTask = pros::c::task_create(ShotHandler::runShoot, &shotHandler, TASK_PRIORITY_DEFAULT,
+                              TASK_STACK_DEPTH_DEFAULT, "ShotHandler");
+	//pros::Task shootTask(ShotHandler::runShoot, &shotHandler);
+
+	shotHandler.shootTask = shootTask;
+
 	pros::lcd::initialize();
 	if (!pros::competition::is_connected()) {
+		puncher.motor.moveAbsolute(10, 100); // make sure the gears are meshing
 		controllerLCD.init();
 	}
 	pros::lcd::register_btn0_cb(btn0);
@@ -62,6 +74,7 @@ void disabled() {}
  * starts.
  */
 void competition_initialize() {
+	puncher.motor.moveAbsolute(10, 100); // make sure the gears are meshing
 	controllerLCD.init();
 	autoSelector.runSelector();
 }

@@ -8,11 +8,14 @@ public:
   Motor motor = Motor(6, true, AbstractMotor::gearset::red);
   Potentiometer pot = Potentiometer('B');
 
-  double targetAngle = 0;
+  int targetTicks = 1100;
+
+  double totalError = 0;
+  double lastError = 0;
 
   Angler();
-  void update();
-  void calibrate();
+  double getCurrentAngle();
+  static void runPID(void* self);
   void moveToAngle(double angle);
   bool isSettled();
   void waitUntilSettled();

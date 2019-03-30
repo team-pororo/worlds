@@ -12,28 +12,10 @@ Intake::Intake() {
 }
 
 void Intake::moveSpeed(int speed) {
-  manualControl = true;
   targetSpeed = speed;
   motor.moveVelocity(200*speed);
 }
 
-void Intake::moveDistance(double degrees) {
-  manualControl = false;
-
-  targetPos += degrees;
-
-  motor.moveAbsolute(targetPos, 200);
-}
-
-bool Intake::isSettled() {
-  return (abs(motor.getPosition() - targetPos) < 5);
-}
-
-void Intake::waitUntilSettled() {
-  while (!isSettled()) {
-    pros::Task::delay(10);
-  }
-}
 
 bool Intake::ballPresentRaw(BallPosition position) {
   pros::vision_object_s_t ball;
@@ -55,8 +37,15 @@ bool Intake::ballPresentRaw(BallPosition position) {
     return false;
   }
 
-  if (ball.width < 200) {
-    return false;
+  if (position == BallPosition::puncher) {
+    // Puncher vision sensor is mounted sideways
+    if (ball.height < 100) {
+      return false;
+    }
+  } else {
+    if (ball.width < 200) {
+      return false;
+    }
   }
 
   return true;
@@ -78,7 +67,7 @@ bool Intake::ballPresent(BallPosition position) {
   }
 }
 
-void Intake::update() {
+/*void Intake::update() {
   pros::lcd::print(
     3,
     "Intake: Low: (%01d,%01d) Hi: (%01d,%01d) Pnch: (%01d,%01d)",
@@ -89,41 +78,53 @@ void Intake::update() {
     ballPresentRaw(BallPosition::puncher),
     ballPresent(BallPosition::puncher)
   );
-}
+}*/
 
 bool Intake::getFull() {
   return (ballPresent(BallPosition::puncher) && (ballPresent(BallPosition::intake) || ballPresent(BallPosition::trajectory)));
 }
 
+void Intake::runVision(void* self_p) {
+  Intake* self = (Intake*)self_p;
+  pros::lcd::print(
+    3,
+    "Intake: Low: (%01d,%01d) Hi: (%01d,%01d) Pnch: (%01d,%01d)",
+    self->ballPresentRaw(BallPosition::intake),
+    self->ballPresent(BallPosition::intake),
+    self->ballPresentRaw(BallPosition::trajectory),
+    self->ballPresent(BallPosition::trajectory),
+    self->ballPresentRaw(BallPosition::puncher),
+    self->ballPresent(BallPosition::puncher)
+  );
+}
+
 void Intake::teleop() {
-  if (manualControl) {
-    if (targetSpeed == 0) {
-      if (forwardButton.changedToPressed()) {
-        moveSpeed(-200);
-      } else if (reverseButton.changedToPressed()) {
-        moveSpeed(200);
-      }
-    } else if (targetSpeed < 0) {
-      bool newFull = getFull();
+  if (targetSpeed == 0) {
+    if (forwardButton.changedToPressed()) {
+      moveSpeed(-200);
+    } else if (reverseButton.changedToPressed()) {
+      moveSpeed(200);
+    }
+  } else if (targetSpeed < 0) {
+    bool newFull = getFull();
 
-      if (forwardButton.changedToPressed()) {
-        moveSpeed(0);
-      } else if (reverseButton.changedToPressed()) {
-        moveSpeed(200);
+    if (forwardButton.changedToPressed()) {
+      moveSpeed(0);
+    } else if (reverseButton.changedToPressed()) {
+      moveSpeed(200);
 
-      } else if (newFull != full && newFull) { // If the intake just became full
-        moveSpeed(0);
-        full = true;
+    } else if (newFull != full && newFull) { // If the intake just became full
+      moveSpeed(0);
+      full = true;
 
-      } else if (getFull() != full) {
-        full = false;
-      }
-    } else if (targetSpeed > 0) {
-      if (forwardButton.changedToPressed()) {
-        moveSpeed(-200);
-      } else if (reverseButton.changedToPressed()) {
-        moveSpeed(0);
-      }
+    } else if (getFull() != full) {
+      full = false;
+    }
+  } else if (targetSpeed > 0) {
+    if (forwardButton.changedToPressed()) {
+      moveSpeed(-200);
+    } else if (reverseButton.changedToPressed()) {
+      moveSpeed(0);
     }
   }
 }

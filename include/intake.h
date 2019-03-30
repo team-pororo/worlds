@@ -30,23 +30,17 @@ public:
 
   Intake();
 
-  bool manualControl = true;
   int targetSpeed = 0;
-  double targetPos = 0;
 
-  bool full;
+  bool full = false;
 
-  void update();
   void moveSpeed(int speed);
-  void moveDistance(double degrees);
-
-  bool isSettled();
-  void waitUntilSettled();
 
   bool ballPresentRaw(BallPosition position);
   bool ballPresent(BallPosition position);
   bool getFull();
 
+  static void runVision(void* self);
   void teleop();
 };
 

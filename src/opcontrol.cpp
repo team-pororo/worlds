@@ -3,7 +3,8 @@
 #include "intake.h"
 #include "puncher.h"
 #include "angler.h"
-#include "doubleshots.h"
+#include "twobar.h"
+#include "shothandler.h"
 #include "autoselect.h"
 #include "watchdog.h"
 #include "controllerLCD.h"
@@ -26,7 +27,8 @@ extern Chassis chassis;
 extern Intake intake;
 extern Puncher puncher;
 extern Angler angler;
-extern DoubleShotHandler doubleShotHandler;
+extern TwoBar twobar;
+extern ShotHandler shotHandler;
 extern Controller controller;
 extern AutoSelector autoSelector;
 extern Watchdog watchdog;
@@ -38,11 +40,28 @@ void opcontrol() {
 	//angler.waitUntilSettled();
 	for (int i = 0;; ++i) {
 		chassis.teleop();
-		doubleShotHandler.teleop();
+		shotHandler.teleop();
 		intake.teleop();
+		twobar.teleop();
 		watchdog.teleop();
 		autoSelector.teleop();
 		controllerLCD.teleop();
+
+		/*if (controller.getDigital(ControllerDigital::B)) {
+			angler.moveToAngle(55);
+		} else if (controller.getDigital(ControllerDigital::A)) {
+			angler.moveToAngle(45);
+		} else if (controller.getDigital(ControllerDigital::Y)) {
+			angler.moveToAngle(35);
+		} else if (controller.getDigital(ControllerDigital::X)) {
+			angler.moveToAngle(30);
+		}*/
+
+		if (controller.getDigital(ControllerDigital::R2)) {
+			printf("opcontrol() shootTask = %10d\n", shotHandler.shootTask);
+
+		}
+
 		pros::Task::delay(20);
 	}
 }
