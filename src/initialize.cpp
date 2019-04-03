@@ -55,6 +55,8 @@ void initialize() {
 	pros::lcd::register_btn0_cb(btn0);
 	pros::lcd::register_btn1_cb(btn1);
 	pros::lcd::register_btn2_cb(btn2);
+
+	twobar.motor.moveAbsolute(-15, 100);
 }
 
 /**

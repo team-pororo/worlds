@@ -3,11 +3,9 @@
 
 #include "main.h"
 
-const double twoBarPresets[3] = {0, 60, 180};
-
 class TwoBar {
 public:
-  Motor motor = Motor(5, false, AbstractMotor::gearset::red);
+  Motor motor = Motor(5, true, AbstractMotor::gearset::red);
 
   ControllerButton presetButtons[3] = {
     ControllerButton(ControllerDigital::down),

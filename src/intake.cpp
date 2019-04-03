@@ -113,13 +113,13 @@ void Intake::teleop() {
     } else if (reverseButton.changedToPressed()) {
       moveSpeed(200);
 
-    } else if (newFull != full && newFull) { // If the intake just became full
+    }/* else if (newFull != full && newFull) { // If the intake just became full
       moveSpeed(0);
       full = true;
 
     } else if (getFull() != full) {
       full = false;
-    }
+    }*/
   } else if (targetSpeed > 0) {
     if (forwardButton.changedToPressed()) {
       moveSpeed(-200);

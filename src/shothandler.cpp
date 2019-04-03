@@ -34,11 +34,11 @@ void ShotHandler::runShoot(void* self_p) {
       self->twobar.moveTo(1);
       self->angler.moveToAngle(self->targetAngle0);
 
-      self->intake.moveSpeed(200);
-      while (self->intake.ballPresent(BallPosition::trajectory)) {
-        pros::Task::delay(20);
-      }
-      self->intake.moveSpeed(0);
+      //self->intake.moveSpeed(200);
+      //while (self->intake.ballPresent(BallPosition::trajectory)) {
+      //  pros::Task::delay(20);
+      //}
+      //self->intake.moveSpeed(0);
 
       self->twobar.waitUntilSettled();
       self->angler.waitUntilSettled();
@@ -48,7 +48,7 @@ void ShotHandler::runShoot(void* self_p) {
 
     } else if (self->mode == ShotHandler::Mode::load) {
 
-      self->intake.moveSpeed(-200);
+      /*self->intake.moveSpeed(-200);
       while (!self->intake.ballPresent(BallPosition::puncher)) {
         pros::Task::delay(20);
       }
@@ -56,18 +56,18 @@ void ShotHandler::runShoot(void* self_p) {
       while (self->intake.ballPresent(BallPosition::trajectory)) {
         pros::Task::delay(20);
       }
-      self->intake.moveSpeed(0);
+      self->intake.moveSpeed(0);*/
 
     } else if (self->mode == ShotHandler::Mode::doubleShoot) {
       // Move the two-bar out of the way, aim, move balls out of the trajectory
       self->twobar.moveTo(1);
       self->angler.moveToAngle(self->targetAngle0);
 
-      self->intake.moveSpeed(200);
+      /*self->intake.moveSpeed(200);
       while (self->intake.ballPresent(BallPosition::trajectory)) {
         pros::Task::delay(20);
       }
-      self->intake.moveSpeed(0);
+      self->intake.moveSpeed(0);*/
 
       self->twobar.waitUntilSettled();
       self->angler.waitUntilSettled();
@@ -75,20 +75,23 @@ void ShotHandler::runShoot(void* self_p) {
       self->puncher.punch();
       self->puncher.waitUntilSettled();
 
-      self->intake.moveSpeed(-200);
-      while (self->intake.ballPresent(BallPosition::puncher)) {
-        pros::Task::delay(20);
-      }
-      self->intake.moveSpeed(0);
-
       self->twobar.moveTo(1);
       self->angler.moveToAngle(self->targetAngle1);
 
-      self->intake.moveSpeed(200);
+      self->intake.moveSpeed(-200);
+      /*while (self->intake.ballPresent(BallPosition::puncher)) {
+        pros::Task::delay(20);
+      }*/
+      pros::Task::delay(1000);
+      self->intake.moveSpeed(0);
+
+
+
+      /*self->intake.moveSpeed(200);
       while (self->intake.ballPresent(BallPosition::trajectory)) {
         pros::Task::delay(20);
       }
-      self->intake.moveSpeed(0);
+      self->intake.moveSpeed(0);*/
 
       self->twobar.waitUntilSettled();
       self->angler.waitUntilSettled();

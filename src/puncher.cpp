@@ -1,13 +1,13 @@
 #include "puncher.h"
 
 Puncher::Puncher() {
-  motor.setBrakeMode(AbstractMotor::brakeMode::hold);
+  //motor.setBrakeMode(AbstractMotor::brakeMode::hold);
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
 }
 
 void Puncher::punch() {
-  targetPos = motor.getPosition() + 360;
-  motor.moveRelative(360, 100);
+  targetPos = motor.getPosition() + 370;
+  motor.moveRelative(370, 100);
 }
 
 bool Puncher::isSettled() {

@@ -2,14 +2,16 @@
 
 #include "main.h"
 
+const double twoBarPresets[3] = {0, 60, 225};
+
 TwoBar::TwoBar() {
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
   motor.setBrakeMode(AbstractMotor::brakeMode::hold);
 }
 
 void TwoBar::moveTo(int position) {
-  targetPosition = twoBarPresets[position];
-  motor.moveAbsolute(twoBarPresets[position], 100);
+  targetPosition = twoBarPresets[position] * 5.0 / 3.0;
+  motor.moveAbsolute(targetPosition, 100);
 }
 
 bool TwoBar::isSettled() {
