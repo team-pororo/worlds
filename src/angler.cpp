@@ -21,6 +21,7 @@ double Angler::getCurrentAngle() {
 void Angler::moveToAngle(double angle) {
   targetTicks = (-64/5 * angle + 1754);
   totalError = 0;
+  timeStart = pros::c::millis();
 }
 
 void Angler::runPID(void* self_p) {
@@ -48,7 +49,7 @@ void Angler::runPID(void* self_p) {
 }
 
 bool Angler::isSettled() {
-  return (abs(pot.get() - targetTicks) < 10);
+  return (abs(pot.get() - targetTicks) < 10 || (pros::c::millis() - timeStart > 1000));
 }
 
 void Angler::waitUntilSettled() {

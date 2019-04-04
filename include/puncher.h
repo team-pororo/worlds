@@ -15,13 +15,17 @@ public:
   // SINGLE MOTOR PUNCHER
   Motor motor = Motor(4, false, AbstractMotor::gearset::red);
 
-  ADIButton limsw = ADIButton('A');
+  pros::task_t punchTask = NULL;
 
   bool idle = true;
   bool wasIdle = true;
   int lastUpdate = 0;
 
+  bool settled = true;
+
   double targetPos = 0;
+
+  static void runPID(void* self);
 
   Puncher();
   void punch();

@@ -10,6 +10,8 @@ public:
 
   int targetTicks = 1100;
 
+  int timeStart = pros::c::millis();
+
   double totalError = 0;
   double lastError = 0;
 

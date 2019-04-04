@@ -40,12 +40,18 @@ void btn2() {
 void initialize() {
 	pros::Task PIDtask(Angler::runPID, &angler);
 	pros::Task VisTask(Intake::runVision, &intake);
+	pros::Task TwoBarTask(TwoBar::runPID, &twobar);
 
 	pros::task_t shootTask = pros::c::task_create(ShotHandler::runShoot, &shotHandler, TASK_PRIORITY_DEFAULT,
                               TASK_STACK_DEPTH_DEFAULT, "ShotHandler");
 	//pros::Task shootTask(ShotHandler::runShoot, &shotHandler);
 
 	shotHandler.shootTask = shootTask;
+
+	pros::task_t punchTask = pros::c::task_create(Puncher::runPID, &puncher, TASK_PRIORITY_DEFAULT,
+                              TASK_STACK_DEPTH_DEFAULT, "Puncher");
+
+	puncher.punchTask = punchTask;
 
 	pros::lcd::initialize();
 	if (!pros::competition::is_connected()) {

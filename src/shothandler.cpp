@@ -5,8 +5,6 @@
 #include "angler.h"
 #include "twobar.h"
 
-// TODO: Add timeouts
-
 bool ShotHandler::isSettled() {
   return settled;
 }
@@ -152,7 +150,7 @@ void ShotHandler::teleop() {
   if (legacy.changedToPressed()) {
     shoot(45);
   }
-  if (otmr.changedToPressed()) {
-    load();
-  }
+  //if (otmr.changedToPressed()) {
+  //  load();
+  //}
 }
