@@ -5,6 +5,8 @@
 #include "angler.h"
 #include "twobar.h"
 
+// TODO: Add timeouts
+
 bool ShotHandler::isSettled() {
   return settled;
 }
@@ -82,7 +84,7 @@ void ShotHandler::runShoot(void* self_p) {
       /*while (self->intake.ballPresent(BallPosition::puncher)) {
         pros::Task::delay(20);
       }*/
-      pros::Task::delay(1000);
+      pros::Task::delay(3000);
       self->intake.moveSpeed(0);
 
 
@@ -135,16 +137,16 @@ void ShotHandler::load() {
 }
 
 void ShotHandler::teleop() {
-  if (zone0.changedToPressed()) {
-    doubleShoot(45, 30);
+  if (zone0.changedToPressed()) { // Zone X, Very Front
+    doubleShoot(55, 40);
   }
-  if (zone1.changedToPressed()) {
-    doubleShoot(45, 30);
+  if (zone1.changedToPressed()) { // Zone Y, Front Tile
+    doubleShoot(45, 30); // Chandler reports that the top flag is not being hit in this zone.
   }
-  if (zone2.changedToPressed()) {
-    doubleShoot(45, 30);
+  if (zone2.changedToPressed()) { // Zone A, Center
+    doubleShoot(40, 30);
   }
-  if (zone3.changedToPressed()) {
+  if (zone3.changedToPressed()) { // Zone B, Back Tile
     doubleShoot(45, 30);
   }
   if (legacy.changedToPressed()) {

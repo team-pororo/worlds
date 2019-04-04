@@ -1,13 +1,16 @@
 #include "puncher.h"
 
 Puncher::Puncher() {
-  //motor.setBrakeMode(AbstractMotor::brakeMode::hold);
+  motor.setBrakeMode(AbstractMotor::brakeMode::coast);
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
 }
 
+// TODO: Add separate task to handle puncher pullback/release
+
 void Puncher::punch() {
-  targetPos = motor.getPosition() + 370;
-  motor.moveRelative(370, 100);
+  targetPos = motor.getPosition() + 365;
+  motor.moveVoltage(0);
+  motor.moveRelative(365, 100);
 }
 
 bool Puncher::isSettled() {

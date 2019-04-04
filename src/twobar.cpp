@@ -2,7 +2,7 @@
 
 #include "main.h"
 
-const double twoBarPresets[3] = {0, 60, 225};
+const double twoBarPresets[3] = {0, 60, 200};
 
 TwoBar::TwoBar() {
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
