@@ -82,7 +82,7 @@ void ShotHandler::runShoot(void* self_p) {
       /*while (self->intake.ballPresent(BallPosition::puncher)) {
         pros::Task::delay(20);
       }*/
-      pros::Task::delay(3000);
+      pros::Task::delay(1000);
       self->intake.moveSpeed(0);
 
 
@@ -139,12 +139,12 @@ void ShotHandler::teleop() {
     doubleShoot(55, 40);
   }
   if (zone1.changedToPressed()) { // Zone Y, Front Tile
-    doubleShoot(45, 30); // Chandler reports that the top flag is not being hit in this zone.
+    doubleShoot(40, 28);
   }
-  if (zone2.changedToPressed()) { // Zone A, Center
-    doubleShoot(40, 30);
+  if (zone2.changedToPressed()) { // Zone A, Center/Back Tile
+    doubleShoot(40, 28);
   }
-  if (zone3.changedToPressed()) { // Zone B, Back Tile
+  if (zone3.changedToPressed()) { // Zone B, Very Back
     doubleShoot(45, 30);
   }
   if (legacy.changedToPressed()) {

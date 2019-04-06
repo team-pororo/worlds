@@ -8,6 +8,7 @@ Puncher::Puncher() {
 // TODO: Add separate task to handle puncher pullback/release
 
 void Puncher::punch() {
+  settled = false;
   pros::c::task_notify(punchTask);
 }
 
@@ -15,11 +16,11 @@ void Puncher::runPID(void* self_p) {
   Puncher* self = (Puncher*)self_p;
   while (pros::c::task_notify_take(true, TIMEOUT_MAX)) {
   //while (true) {
-    self->settled = false;
+    //self->settled = false;
 
-    self->targetPos = self->motor.getPosition() + 365;
+    //self->targetPos = self->motor.getPosition() + 365;
     self->motor.moveRelative(370, 100);
-    while (abs(self->targetPos - self->motor.getPosition()) > 5) {
+    while (abs(self->motor.getTargetPosition() - self->motor.getPosition()) > 5) {
       pros::Task::delay(20);
     }
     self->motor.moveVoltage(0); // let the motor return to initial pos
