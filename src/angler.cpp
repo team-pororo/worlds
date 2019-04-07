@@ -5,7 +5,7 @@ const double kI = 0.0002;
 const double kD = 0.001;
 
 Angler::Angler() {
-  motor.setBrakeMode(AbstractMotor::brakeMode::hold);
+  motor.setBrakeMode(AbstractMotor::brakeMode::brake);
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
   lastError = pot.get() - targetTicks;
 }
