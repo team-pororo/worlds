@@ -41,6 +41,7 @@ void initialize() {
 	pros::Task PIDtask(Angler::runPID, &angler);
 	pros::Task VisTask(Intake::runVision, &intake);
 	//pros::Task TwoBarTask(TwoBar::runPID, &twobar);
+	twobar.drop();
 
 	pros::task_t shootTask = pros::c::task_create(ShotHandler::runShoot, &shotHandler, TASK_PRIORITY_DEFAULT,
                               TASK_STACK_DEPTH_DEFAULT, "ShotHandler");

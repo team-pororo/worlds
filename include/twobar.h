@@ -6,6 +6,7 @@
 class TwoBar {
 public:
   Motor motor = Motor(5, true, AbstractMotor::gearset::red);
+  Potentiometer pot = Potentiometer('A');
 
   ControllerButton presetButtons[3] = {
     ControllerButton(ControllerDigital::down),
@@ -16,6 +17,7 @@ public:
   double targetPosition = 0;
 
   TwoBar();
+  void drop();
   void teleop();
   void moveTo(int preset);
   bool isSettled();

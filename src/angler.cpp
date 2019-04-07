@@ -19,7 +19,7 @@ double Angler::getCurrentAngle() {
 }
 
 void Angler::moveToAngle(double angle) {
-  targetTicks = (-64/5 * angle + 1754);
+  targetTicks = (-16.4 * angle + 1880);
   totalError = 0;
   timeStart = pros::c::millis();
 }
