@@ -14,12 +14,15 @@ public:
     ControllerButton(ControllerDigital::up)
   };
 
+  int targetPreset = 0;
   double targetPosition = 0;
 
   TwoBar();
   void drop();
   void teleop();
   void moveTo(int preset);
+  void avoidPuncherPath();
+  void returnToInitial();
   bool isSettled();
   void waitUntilSettled();
 };

@@ -31,7 +31,7 @@ void ShotHandler::runShoot(void* self_p) {
 
     if (self->mode == ShotHandler::Mode::shoot) {
       // Move the two-bar out of the way, aim, move balls out of the trajectory
-      //self->twobar.moveTo(1);
+      self->twobar.avoidPuncherPath();
       self->angler.moveToAngle(self->targetAngle0);
 
       //self->intake.moveSpeed(200);
@@ -45,6 +45,7 @@ void ShotHandler::runShoot(void* self_p) {
 
       self->puncher.punch();
       self->puncher.waitUntilSettled();
+      self->twobar.returnToInitial();
 
     } else if (self->mode == ShotHandler::Mode::load) {
 
@@ -60,7 +61,7 @@ void ShotHandler::runShoot(void* self_p) {
 
     } else if (self->mode == ShotHandler::Mode::doubleShoot) {
       // Move the two-bar out of the way, aim, move balls out of the trajectory
-      //self->twobar.moveTo(1);
+      self->twobar.avoidPuncherPath();
       self->angler.moveToAngle(self->targetAngle0);
 
       /*self->intake.moveSpeed(200);
@@ -98,6 +99,8 @@ void ShotHandler::runShoot(void* self_p) {
 
       self->puncher.punch();
       self->puncher.waitUntilSettled();
+
+      self->twobar.returnToInitial();
     }
 
     self->settled = true;

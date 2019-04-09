@@ -2,7 +2,7 @@
 
 #include "main.h"
 
-const double twoBarPresets[3] = {0, 60, 240};
+const double twoBarPresets[4] = {0, 60, 240, 10};
 
 TwoBar::TwoBar() {
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
@@ -25,8 +25,21 @@ void TwoBar::drop() {
 }
 
 void TwoBar::moveTo(int position) {
+  targetPreset = position;
   targetPosition = twoBarPresets[position] * 5.0 / 3.0;
   motor.moveAbsolute(targetPosition, 100);
+}
+
+void TwoBar::avoidPuncherPath() {
+  if (targetPreset == 0) {
+    moveTo(3);
+  }
+}
+
+void TwoBar::returnToInitial() {
+  if (targetPreset == 3) {
+    moveTo(0);
+  }
 }
 
 bool TwoBar::isSettled() {
