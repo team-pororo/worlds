@@ -3,6 +3,14 @@
 
 #include "main.h"
 
+enum class PuncherState {
+  idle,
+  pullback,
+  ready,
+  punch,
+  pullbackAndPunch
+};
+
 class Puncher {
 public:
 
@@ -17,17 +25,16 @@ public:
 
   pros::task_t punchTask = NULL;
 
-  bool idle = true;
-  bool wasIdle = true;
-  int lastUpdate = 0;
+  PuncherState state = PuncherState::idle;
 
-  bool settled = true;
+  bool idle = true;
 
   double targetPos = 0;
 
   static void runPID(void* self);
 
   Puncher();
+  void ready();
   void punch();
   bool isSettled();
   void waitUntilSettled();

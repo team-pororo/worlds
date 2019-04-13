@@ -40,6 +40,12 @@ void btn2() {
 void initialize() {
 	pros::Task PIDtask(Angler::runPID, &angler);
 	pros::Task VisTask(Intake::runVision, &intake);
+
+
+	pros::task_t intakeFunctionsTask = pros::c::task_create(Intake::runFunctions, &intake, TASK_PRIORITY_DEFAULT,
+                              TASK_STACK_DEPTH_DEFAULT, "IntakeFunctions");
+
+	intake.functionTask = intakeFunctionsTask;
 	//pros::Task TwoBarTask(TwoBar::runPID, &twobar);
 	//twobar.drop();
 

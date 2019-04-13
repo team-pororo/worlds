@@ -10,6 +10,12 @@ enum class BallPosition {
   puncher
 };
 
+enum class IntakeAction {
+  load,
+  clear,
+  loadAndClear
+};
+
 class Intake {
 public:
   Motor motor = Motor(3, false, AbstractMotor::gearset::green);
@@ -21,6 +27,10 @@ public:
   MedianFilter<7> filter_low;
   MedianFilter<7> filter_high;
   MedianFilter<7> filter_puncher;
+
+  pros::task_t functionTask = NULL;
+  IntakeAction action = IntakeAction::load;
+  bool settled = true;
 
   pros::vision_signature_s_t yellow =
           pros::Vision::signature_from_utility(1,579,1399,989,-4303,-3339,-3821,3,0);
@@ -40,7 +50,15 @@ public:
   bool ballPresent(BallPosition position);
   bool getFull();
 
+  void load();
+  void clear();
+  void ready();
+
+  bool isSettled();
+  void waitUntilSettled();
+
   static void runVision(void* self);
+  static void runFunctions(void* self);
   void teleop();
 };
 

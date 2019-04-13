@@ -35,12 +35,13 @@ public:
   ControllerButton zone2 = ControllerButton(ControllerDigital::A);
   ControllerButton zone3 = ControllerButton(ControllerDigital::B);
   ControllerButton legacy = ControllerButton(ControllerDigital::R1);
-  //ControllerButton otmr = ControllerButton(ControllerDigital::R2);
+  ControllerButton otmr = ControllerButton(ControllerDigital::R2);
 
 
   ShotHandler(Puncher& p, Angler& a, Intake& i, TwoBar& t) : puncher(p), angler(a), intake(i), twobar(t) {};
 
   static void runShoot(void* self);
+  static void runPuncherReady(void* self);
 
   void shoot(double angle);
   void doubleShoot(double angle0, double angle1);

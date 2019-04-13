@@ -20,7 +20,7 @@ public:
     left, right, AbstractMotor::gearset::green, {WHEEL_DIAM, WHEELBASE_WIDTH}
   );
   Controller& controller;
-  ControllerButton brakeButton = ControllerButton(ControllerDigital::R2);
+  ControllerButton brakeButton = ControllerButton(ControllerDigital::left);
 
   bool brakesEngaged = false;
 

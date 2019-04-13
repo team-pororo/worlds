@@ -30,82 +30,77 @@ void ShotHandler::runShoot(void* self_p) {
 
 
     if (self->mode == ShotHandler::Mode::shoot) {
-      // Move the two-bar out of the way, aim, move balls out of the trajectory
+      // Move the two-bar out of the way, aim, move balls out of the trajectory, pre-arm puncher
       self->twobar.avoidPuncherPath();
       self->angler.moveToAngle(self->targetAngle0);
+      self->puncher.ready();
+      self->intake.clear();
 
-      //self->intake.moveSpeed(200);
-      //while (self->intake.ballPresent(BallPosition::trajectory)) {
-      //  pros::Task::delay(20);
-      //}
-      //self->intake.moveSpeed(0);
-
-      //self->twobar.waitUntilSettled();
+      self->twobar.waitUntilSettled();
       self->angler.waitUntilSettled();
+      self->intake.waitUntilSettled();
+      self->puncher.waitUntilSettled();
 
+      // Punch!
       self->puncher.punch();
       self->puncher.waitUntilSettled();
+
+
+      // Move two-bar back down
       self->twobar.returnToInitial();
 
     } else if (self->mode == ShotHandler::Mode::load) {
 
-      /*self->intake.moveSpeed(-200);
-      while (!self->intake.ballPresent(BallPosition::puncher)) {
-        pros::Task::delay(20);
-      }
-      self->intake.moveSpeed(200);
-      while (self->intake.ballPresent(BallPosition::trajectory)) {
-        pros::Task::delay(20);
-      }
-      self->intake.moveSpeed(0);*/
+      self->intake.ready();
 
     } else if (self->mode == ShotHandler::Mode::doubleShoot) {
-      // Move the two-bar out of the way, aim, move balls out of the trajectory
+      // Move the two-bar out of the way, aim, move balls out of the trajectory, pre-arm puncher
       self->twobar.avoidPuncherPath();
       self->angler.moveToAngle(self->targetAngle0);
+      self->puncher.ready();
+      self->intake.clear();
 
-      /*self->intake.moveSpeed(200);
-      while (self->intake.ballPresent(BallPosition::trajectory)) {
-        pros::Task::delay(20);
-      }
-      self->intake.moveSpeed(0);*/
-
-      //self->twobar.waitUntilSettled();
+      self->twobar.waitUntilSettled();
       self->angler.waitUntilSettled();
+      self->intake.waitUntilSettled();
+      self->puncher.waitUntilSettled();
 
+      // Punch!
       self->puncher.punch();
       self->puncher.waitUntilSettled();
 
-      //self->twobar.moveTo(1);
+      // Aim for second target, load second ball, pre-arm puncher
       self->angler.moveToAngle(self->targetAngle1);
+      self->intake.load();
+      self->puncher.ready();
 
-      self->intake.moveSpeed(-200);
-      /*while (self->intake.ballPresent(BallPosition::puncher)) {
-        pros::Task::delay(20);
-      }*/
-      pros::Task::delay(1000);
-      self->intake.moveSpeed(0);
-
-
-
-      /*self->intake.moveSpeed(200);
-      while (self->intake.ballPresent(BallPosition::trajectory)) {
-        pros::Task::delay(20);
-      }
-      self->intake.moveSpeed(0);*/
-
-      //self->twobar.waitUntilSettled();
+      self->twobar.waitUntilSettled();
       self->angler.waitUntilSettled();
+      self->puncher.waitUntilSettled();
 
+      // Punch!
       self->puncher.punch();
       self->puncher.waitUntilSettled();
 
+      // Move two-bar back down
       self->twobar.returnToInitial();
     }
 
     self->settled = true;
     //pros::c::delay(10);
 
+  }
+}
+
+void ShotHandler::runPuncherReady(void *self_p) {
+  ShotHandler* self = (ShotHandler*)self_p;
+  while (true) {
+    if (self->intake.ballPresent(BallPosition::puncher)) {
+      if (self->puncher.state == PuncherState::idle) {
+        self->puncher.ready();
+      }
+    }
+    pros::Task::delay(20);
   }
 }
 
@@ -153,7 +148,7 @@ void ShotHandler::teleop() {
   if (legacy.changedToPressed()) {
     shoot(45);
   }
-  //if (otmr.changedToPressed()) {
-  //  load();
-  //}
+  if (otmr.changedToPressed()) {
+    load();
+  }
 }

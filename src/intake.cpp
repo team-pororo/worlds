@@ -37,8 +37,8 @@ bool Intake::ballPresentRaw(BallPosition position) {
     return false;
   }
 
-  if (position == BallPosition::puncher) {
-    // Puncher vision sensor is mounted sideways
+  if (position != BallPosition::trajectory) {
+    // Most sensors are mounted sideways
     if (ball.height < 100) {
       return false;
     }
@@ -86,16 +86,91 @@ bool Intake::getFull() {
 
 void Intake::runVision(void* self_p) {
   Intake* self = (Intake*)self_p;
-  pros::lcd::print(
-    3,
-    "Intake: Low: (%01d,%01d) Hi: (%01d,%01d) Pnch: (%01d,%01d)",
-    self->ballPresentRaw(BallPosition::intake),
-    self->ballPresent(BallPosition::intake),
-    self->ballPresentRaw(BallPosition::trajectory),
-    self->ballPresent(BallPosition::trajectory),
-    self->ballPresentRaw(BallPosition::puncher),
-    self->ballPresent(BallPosition::puncher)
-  );
+  while (true) {
+    pros::lcd::print(
+      3,
+      "Intake: Low: (%01d,%01d) Hi: (%01d,%01d) Pnch: (%01d,%01d)",
+      self->ballPresentRaw(BallPosition::intake),
+      self->ballPresent(BallPosition::intake),
+      self->ballPresentRaw(BallPosition::trajectory),
+      self->ballPresent(BallPosition::trajectory),
+      self->ballPresentRaw(BallPosition::puncher),
+      self->ballPresent(BallPosition::puncher)
+    );
+  }
+}
+
+void Intake::runFunctions(void* self_p) {
+  Intake* self = (Intake*)self_p;
+  while (pros::c::task_notify_take(true, 0))  {
+    int timeStart = pros::c::millis();
+    switch (self->action) {
+      case (IntakeAction::load): {
+
+        self->moveSpeed(-200);
+        while (!self->ballPresent(BallPosition::puncher) && (pros::c::millis() - timeStart < 1000)) {
+          pros::Task::delay(20);
+        }
+        self->moveSpeed(0);
+
+      }
+      break;
+      case (IntakeAction::clear): {
+
+        self->moveSpeed(200);
+        while (self->ballPresent(BallPosition::trajectory) && (pros::c::millis() - timeStart < 1000)) {
+          pros::Task::delay(20);
+        }
+        self->moveSpeed(0);
+
+      }
+      break;
+      case (IntakeAction::loadAndClear): {
+
+        self->moveSpeed(-200);
+        while (!self->ballPresent(BallPosition::puncher) && (pros::c::millis() - timeStart < 1000)) {
+          pros::Task::delay(20);
+        }
+        self->moveSpeed(0);
+
+        self->moveSpeed(200);
+        while (self->ballPresent(BallPosition::trajectory) && (pros::c::millis() - timeStart < 1000)) {
+          pros::Task::delay(20);
+        }
+        self->moveSpeed(0);
+
+      }
+    }
+    self->settled = true;
+  }
+}
+
+void Intake::load() {
+  action = IntakeAction::load;
+  settled = false;
+  pros::c::task_notify(functionTask);
+}
+
+void Intake::clear() {
+  action = IntakeAction::clear;
+  settled = false;
+  pros::c::task_notify(functionTask);
+}
+
+void Intake::ready() {
+  action = IntakeAction::loadAndClear;
+  settled = false;
+  pros::c::task_notify(functionTask);
+}
+
+bool Intake::isSettled() {
+  return settled;
+}
+
+void Intake::waitUntilSettled() {
+  while (!settled) {
+    pros::Task::delay(20);
+  }
 }
 
 void Intake::teleop() {
