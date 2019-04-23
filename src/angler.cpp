@@ -1,27 +1,17 @@
 #include "angler.h"
 
-const double kP = 0.2;
-const double kI = 0.0002;
-const double kD = 0.001;
+const double kP = 0.4;
+const double kI = 0.004;
+const double kD = 0.0;
+
+// Motor shaft degrees for each preset - FIND THESE EXPERIMENTALLY
+// Zone A Mid Flag is too high, but the angler can't go any lower!
+const double highAngles[5] = {53, 40, 40, 45, 40};
+const double lowAngles[5] = {35, 28, 25, 30, 40};
 
 Angler::Angler() {
   motor.setBrakeMode(AbstractMotor::brakeMode::brake);
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
-  lastError = pot.get() - targetTicks;
-}
-
-double Angler::getCurrentAngle() {
-  double reading = pot.get();
-  // Formula contructed on the following data:
-  // Angle = 55 deg -> Pot ticks = 1000
-  // Angle = 30 deg -> Pot ticks = 1370
-  return (-5/64 * reading + 4385/32);
-}
-
-void Angler::moveToAngle(double angle) {
-  targetTicks = (-16.4 * angle + 1880);
-  totalError = 0;
-  timeStart = pros::c::millis();
 }
 
 void Angler::runPID(void* self_p) {
@@ -44,8 +34,20 @@ void Angler::runPID(void* self_p) {
     self->lastError = error;
 
 
-    pros::Task::delay(20);
+    pros::Task::delay(5);
   }
+}
+
+void Angler::moveToAngle(bool high, int position) {
+  double angle;
+  if (high) {
+    angle = highAngles[position];
+  } else {
+    angle = lowAngles[position];
+  }
+  targetTicks = (-16.4 * angle + 1880);
+  totalError = 0;
+  timeStart = pros::c::millis();
 }
 
 bool Angler::isSettled() {

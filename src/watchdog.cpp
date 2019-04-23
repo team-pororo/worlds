@@ -12,7 +12,7 @@ void Watchdog::update() {
   secsRemaining = (pros::competition::is_autonomous() ? 15 : 105) - (pros::c::millis() - timeMatchStart) / 1000;
 
   pros::lcd::print(
-    7,
+    5,
     "Time: ms: %05d state: %s remain: :%03d",
     pros::c::millis() % 100000,
     (pros::competition::is_autonomous() ? "AUTO" : "TELE"),
@@ -20,7 +20,7 @@ void Watchdog::update() {
   );
 
   pros::lcd::print(
-    1,
+    0,
     "Battery: Robot: %02d Controller: %02d",
     batteryCapacity,
     controllerCapacity

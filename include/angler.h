@@ -16,9 +16,8 @@ public:
   double lastError = 0;
 
   Angler();
-  double getCurrentAngle();
   static void runPID(void* self);
-  void moveToAngle(double angle);
+  void moveToAngle(bool high, int pos);
   bool isSettled();
   void waitUntilSettled();
 };

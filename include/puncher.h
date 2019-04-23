@@ -27,8 +27,6 @@ public:
 
   PuncherState state = PuncherState::idle;
 
-  bool idle = true;
-
   double targetPos = 0;
 
   static void runPID(void* self);
@@ -36,6 +34,7 @@ public:
   Puncher();
   void ready();
   void punch();
+  void update();
   bool isSettled();
   void waitUntilSettled();
 };

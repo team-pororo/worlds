@@ -38,20 +38,18 @@ void btn2() {
 }
 
 void initialize() {
-	pros::Task PIDtask(Angler::runPID, &angler);
 	pros::Task VisTask(Intake::runVision, &intake);
+	pros::Task AnglerTask(Angler::runPID, &angler);
+	pros::Task TwoBarTask(TwoBar::runPID, &twobar);
 
 
 	pros::task_t intakeFunctionsTask = pros::c::task_create(Intake::runFunctions, &intake, TASK_PRIORITY_DEFAULT,
                               TASK_STACK_DEPTH_DEFAULT, "IntakeFunctions");
 
 	intake.functionTask = intakeFunctionsTask;
-	//pros::Task TwoBarTask(TwoBar::runPID, &twobar);
-	//twobar.drop();
 
 	pros::task_t shootTask = pros::c::task_create(ShotHandler::runShoot, &shotHandler, TASK_PRIORITY_DEFAULT,
                               TASK_STACK_DEPTH_DEFAULT, "ShotHandler");
-	//pros::Task shootTask(ShotHandler::runShoot, &shotHandler);
 
 	shotHandler.shootTask = shootTask;
 
@@ -60,9 +58,10 @@ void initialize() {
 
 	puncher.punchTask = punchTask;
 
+	pros::Task PunchPredict(ShotHandler::runPuncherReady, &shotHandler);
+
 	pros::lcd::initialize();
 	if (!pros::competition::is_connected()) {
-		puncher.motor.moveAbsolute(10, 100); // make sure the gears are meshing
 		controllerLCD.init();
 	}
 	pros::lcd::register_btn0_cb(btn0);
@@ -89,7 +88,6 @@ void disabled() {}
  * starts.
  */
 void competition_initialize() {
-	puncher.motor.moveAbsolute(10, 100); // make sure the gears are meshing
 	controllerLCD.init();
 	autoSelector.runSelector();
 }

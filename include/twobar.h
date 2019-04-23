@@ -6,6 +6,7 @@
 class TwoBar {
 public:
   Motor motor = Motor(5, true, AbstractMotor::gearset::red);
+
   Potentiometer pot = Potentiometer('A');
 
   ControllerButton presetButtons[3] = {
@@ -15,14 +16,22 @@ public:
   };
 
   int targetPreset = 0;
-  double targetPosition = 0;
+  int targetTicks = 300;
+
+  int timeStart = pros::c::millis();
+
+  double totalError = 0;
+  double lastError = 0;
+
 
   TwoBar();
-  void drop();
   void teleop();
   void moveTo(int preset);
+  static void runPID(void* self);
   void avoidPuncherPath();
   void returnToInitial();
+  bool isSafeToShoot();
+  void waitUntilSafeToShoot();
   bool isSettled();
   void waitUntilSettled();
 };

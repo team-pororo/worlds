@@ -40,7 +40,7 @@ void AutoSelector::update() {
     diagnostics += "Plfm: No ";
   }
 
-  pros::lcd::print(0, diagnostics.c_str());
+  pros::lcd::print(7, diagnostics.c_str());
 }
 
 void AutoSelector::teleop() {

@@ -91,7 +91,7 @@ void Chassis::driveManual() {
   #endif
 }
 
-void Chassis::update() {
+void Chassis::update() {/*
   std::string diagnostics = "Chsis: ";
   if (brakesEngaged) {
     diagnostics += "Brk: On ";
@@ -117,7 +117,7 @@ void Chassis::update() {
   diagnostics += "DrBr: No ";
   #endif
 
-  pros::lcd::print(2, diagnostics.c_str());
+  pros::lcd::print(2, diagnostics.c_str());*/
 }
 
 void Chassis::teleop() {

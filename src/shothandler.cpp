@@ -17,7 +17,7 @@ void ShotHandler::waitUntilSettled() {
 
 void ShotHandler::runShoot(void* self_p) {
   ShotHandler* self = (ShotHandler*)self_p;
-  printf("ShotHandler::runShoot() shootTask = %10d\n", self->shootTask);
+  //printf("ShotHandler::runShoot() shootTask = %10d\n", self->shootTask);
 
   while (pros::c::task_notify_take(true, TIMEOUT_MAX)) {
   //while (true) {
@@ -25,18 +25,18 @@ void ShotHandler::runShoot(void* self_p) {
 
 
 
-    printf("ShotHandler::runShoot() still alive\n");
+    //printf("ShotHandler::runShoot() still alive\n");
 
 
 
     if (self->mode == ShotHandler::Mode::shoot) {
       // Move the two-bar out of the way, aim, move balls out of the trajectory, pre-arm puncher
       self->twobar.avoidPuncherPath();
-      self->angler.moveToAngle(self->targetAngle0);
+      self->angler.moveToAngle(false, self->targetPos);
       self->puncher.ready();
       self->intake.clear();
 
-      self->twobar.waitUntilSettled();
+      self->twobar.waitUntilSafeToShoot();
       self->angler.waitUntilSettled();
       self->intake.waitUntilSettled();
       self->puncher.waitUntilSettled();
@@ -48,6 +48,7 @@ void ShotHandler::runShoot(void* self_p) {
 
       // Move two-bar back down
       self->twobar.returnToInitial();
+      self->angler.moveToAngle(false, 4); // return to resting angle
 
     } else if (self->mode == ShotHandler::Mode::load) {
 
@@ -56,11 +57,11 @@ void ShotHandler::runShoot(void* self_p) {
     } else if (self->mode == ShotHandler::Mode::doubleShoot) {
       // Move the two-bar out of the way, aim, move balls out of the trajectory, pre-arm puncher
       self->twobar.avoidPuncherPath();
-      self->angler.moveToAngle(self->targetAngle0);
+      self->angler.moveToAngle(true, self->targetPos);
       self->puncher.ready();
       self->intake.clear();
 
-      self->twobar.waitUntilSettled();
+      self->twobar.waitUntilSafeToShoot();
       self->angler.waitUntilSettled();
       self->intake.waitUntilSettled();
       self->puncher.waitUntilSettled();
@@ -70,11 +71,12 @@ void ShotHandler::runShoot(void* self_p) {
       self->puncher.waitUntilSettled();
 
       // Aim for second target, load second ball, pre-arm puncher
-      self->angler.moveToAngle(self->targetAngle1);
-      self->intake.load();
+      self->angler.moveToAngle(false, self->targetPos);
       self->puncher.ready();
 
-      self->twobar.waitUntilSettled();
+      pros::Task::delay(100);
+      self->intake.load();
+
       self->angler.waitUntilSettled();
       self->puncher.waitUntilSettled();
 
@@ -84,6 +86,7 @@ void ShotHandler::runShoot(void* self_p) {
 
       // Move two-bar back down
       self->twobar.returnToInitial();
+      self->angler.moveToAngle(false, 4); // return to resting angle
     }
 
     self->settled = true;
@@ -93,6 +96,7 @@ void ShotHandler::runShoot(void* self_p) {
 }
 
 void ShotHandler::runPuncherReady(void *self_p) {
+  //pros::Task::delay(1000);
   ShotHandler* self = (ShotHandler*)self_p;
   while (true) {
     if (self->intake.ballPresent(BallPosition::puncher)) {
@@ -100,12 +104,27 @@ void ShotHandler::runPuncherReady(void *self_p) {
         self->puncher.ready();
       }
     }
+    if (self->puncher.state == PuncherState::punch || self->puncher.state == PuncherState::pullbackAndPunch) {
+      pros::Task::delay(100); // wait for ball to leave puncher after fire
+    }
     pros::Task::delay(20);
+
+    if (self->puncher.state == PuncherState::idle) {
+      pros::lcd::print(4, "Puncher: Idle");
+    } else if (self->puncher.state == PuncherState::ready) {
+      pros::lcd::print(4, "Puncher: Ready");
+    } else if (self->puncher.state == PuncherState::punch) {
+      pros::lcd::print(4, "Puncher: Punching");
+    } else if (self->puncher.state == PuncherState::pullback) {
+      pros::lcd::print(4, "Puncher: Pulling back");
+    } else if (self->puncher.state == PuncherState::pullbackAndPunch) {
+      pros::lcd::print(4, "Puncher: Pulling back and punching");
+    }
   }
 }
 
-void ShotHandler::shoot(double angle) {
-  targetAngle0 = angle;
+void ShotHandler::shoot() {
+  targetPos = 4; // LEGACY position
   mode = Mode::shoot;
 
   if (shootTask) {
@@ -114,9 +133,8 @@ void ShotHandler::shoot(double angle) {
   }
 }
 
-void ShotHandler::doubleShoot(double angle0, double angle1) {
-  targetAngle0 = angle0;
-  targetAngle1 = angle1;
+void ShotHandler::doubleShoot(int pos) {
+  targetPos = pos;
   mode = Mode::doubleShoot;
 
   if (shootTask) {
@@ -134,19 +152,19 @@ void ShotHandler::load() {
 
 void ShotHandler::teleop() {
   if (zone0.changedToPressed()) { // Zone X, Very Front
-    doubleShoot(55, 40);
+    doubleShoot(0);
   }
   if (zone1.changedToPressed()) { // Zone Y, Front Tile
-    doubleShoot(40, 28);
+    doubleShoot(1);
   }
   if (zone2.changedToPressed()) { // Zone A, Center/Back Tile
-    doubleShoot(40, 28);
+    doubleShoot(2);
   }
   if (zone3.changedToPressed()) { // Zone B, Very Back
-    doubleShoot(45, 30);
+    doubleShoot(3);
   }
   if (legacy.changedToPressed()) {
-    shoot(45);
+    shoot();
   }
   if (otmr.changedToPressed()) {
     load();

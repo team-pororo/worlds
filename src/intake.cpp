@@ -6,9 +6,9 @@
 Intake::Intake() {
   motor.setBrakeMode(AbstractMotor::brakeMode::hold);
   motor.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
-  vision_low.set_signature(1, &yellow);
-  vision_high.set_signature(1, &yellow);
-  vision_puncher.set_signature(1, &yellow);
+  vision_low.set_signature(1, &yellow_low);
+  vision_high.set_signature(1, &yellow_high);
+  vision_puncher.set_signature(1, &yellow_puncher);
 }
 
 void Intake::moveSpeed(int speed) {
@@ -88,21 +88,23 @@ void Intake::runVision(void* self_p) {
   Intake* self = (Intake*)self_p;
   while (true) {
     pros::lcd::print(
-      3,
-      "Intake: Low: (%01d,%01d) Hi: (%01d,%01d) Pnch: (%01d,%01d)",
+      2,
+      "Intk: L(%01d,%01d) H(%01d,%01d) P(%01d,%01d) ST:(%01d)",
       self->ballPresentRaw(BallPosition::intake),
       self->ballPresent(BallPosition::intake),
       self->ballPresentRaw(BallPosition::trajectory),
       self->ballPresent(BallPosition::trajectory),
       self->ballPresentRaw(BallPosition::puncher),
-      self->ballPresent(BallPosition::puncher)
+      self->ballPresent(BallPosition::puncher),
+      self->isSettled()
     );
+    pros::Task::delay(20);
   }
 }
 
 void Intake::runFunctions(void* self_p) {
   Intake* self = (Intake*)self_p;
-  while (pros::c::task_notify_take(true, 0))  {
+  while (pros::c::task_notify_take(true, TIMEOUT_MAX))  {
     int timeStart = pros::c::millis();
     switch (self->action) {
       case (IntakeAction::load): {

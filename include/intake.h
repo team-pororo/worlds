@@ -18,7 +18,7 @@ enum class IntakeAction {
 
 class Intake {
 public:
-  Motor motor = Motor(3, false, AbstractMotor::gearset::green);
+  Motor motor = Motor(3, true, AbstractMotor::gearset::green);
 
   Vision vision_low = Vision(11);
   Vision vision_high = Vision(12);
@@ -32,8 +32,14 @@ public:
   IntakeAction action = IntakeAction::load;
   bool settled = true;
 
-  pros::vision_signature_s_t yellow =
-          pros::Vision::signature_from_utility(1,579,1399,989,-4303,-3339,-3821,3,0);
+  pros::vision_signature_s_t yellow_low =
+          pros::Vision::signature_from_utility(1,2879,3675,3277,-4469,-3213,-3841,3,0);
+
+  pros::vision_signature_s_t yellow_high =
+          pros::Vision::signature_from_utility(1,2639,3417,3028,-5669,-5205,-5437,3,0);
+
+  pros::vision_signature_s_t yellow_puncher =
+          pros::Vision::signature_from_utility(1,349,1393,871,-5047,-4241,-4644,3,0);
 
   ControllerButton forwardButton = ControllerButton(ControllerDigital::L1);
   ControllerButton reverseButton = ControllerButton(ControllerDigital::L2);

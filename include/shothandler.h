@@ -27,8 +27,7 @@ public:
 
   Mode mode = Mode::load;
 
-  double targetAngle0 = 45;
-  double targetAngle1 = 45;
+  int targetPos = 0;
 
   ControllerButton zone0 = ControllerButton(ControllerDigital::X);
   ControllerButton zone1 = ControllerButton(ControllerDigital::Y);
@@ -43,8 +42,8 @@ public:
   static void runShoot(void* self);
   static void runPuncherReady(void* self);
 
-  void shoot(double angle);
-  void doubleShoot(double angle0, double angle1);
+  void shoot();
+  void doubleShoot(int pos);
   void load();
 
   void teleop();
