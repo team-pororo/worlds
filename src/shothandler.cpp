@@ -34,11 +34,11 @@ void ShotHandler::runShoot(void* self_p) {
       self->twobar.avoidPuncherPath();
       self->angler.moveToAngle(false, self->targetPos);
       self->puncher.ready();
-      self->intake.clear();
+      //self->intake.clear();
 
       self->twobar.waitUntilSafeToShoot();
       self->angler.waitUntilSettled();
-      self->intake.waitUntilSettled();
+      //self->intake.waitUntilSettled();
       self->puncher.waitUntilSettled();
 
       // Punch!
@@ -59,11 +59,11 @@ void ShotHandler::runShoot(void* self_p) {
       self->twobar.avoidPuncherPath();
       self->angler.moveToAngle(true, self->targetPos);
       self->puncher.ready();
-      self->intake.clear();
+      //self->intake.clear();
 
       self->twobar.waitUntilSafeToShoot();
       self->angler.waitUntilSettled();
-      self->intake.waitUntilSettled();
+      //self->intake.waitUntilSettled();
       self->puncher.waitUntilSettled();
 
       // Punch!
@@ -74,8 +74,11 @@ void ShotHandler::runShoot(void* self_p) {
       self->angler.moveToAngle(false, self->targetPos);
       self->puncher.ready();
 
-      pros::Task::delay(100);
-      self->intake.load();
+      //pros::Task::delay(200);
+      //self->intake.load();
+      self->intake.moveSpeed(-200);
+      pros::Task::delay(500);
+      self->intake.moveSpeed(0);
 
       self->angler.waitUntilSettled();
       self->puncher.waitUntilSettled();
@@ -105,7 +108,9 @@ void ShotHandler::runPuncherReady(void *self_p) {
       }
     }
     if (self->puncher.state == PuncherState::punch || self->puncher.state == PuncherState::pullbackAndPunch) {
+      pros::c::task_notify_clear(self->puncher.punchTask);
       pros::Task::delay(100); // wait for ball to leave puncher after fire
+
     }
     pros::Task::delay(20);
 

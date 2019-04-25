@@ -35,8 +35,8 @@ void Puncher::runPID(void* self_p) {
       //pros::lcd::print(4, "Puncher: Punching...");
       // Speed-optimized punch - last 15 degrees. Assume puncher is already retracted.
 
-      self->targetPos = self->motor.getPosition() + 125;
-      self->motor.moveRelative(125, 100);
+      self->targetPos = self->motor.getPosition() + 140;
+      self->motor.moveRelative(140, 100);
       while (abs(self->targetPos - self->motor.getPosition()) > 5 && (pros::c::millis() - timeStart < 500)) {
         pros::Task::delay(20);
       }
@@ -49,8 +49,8 @@ void Puncher::runPID(void* self_p) {
       //pros::lcd::print(4, "Puncher: Pulling back...");
       // Pull back in advance of a punch to reduce double shot time.
 
-      self->targetPos = self->motor.getPosition() + 240;
-      self->motor.moveRelative(240, 100);
+      self->targetPos = self->motor.getPosition() + 225;
+      self->motor.moveRelative(225, 100);
       while (abs(self->targetPos - self->motor.getPosition()) > 5 && (pros::c::millis() - timeStart < 1000)) {
         pros::Task::delay(20);
       }

@@ -7,7 +7,8 @@
 #define DRIVE_VELOCITY true
 #define DRIVE_BRAKES false
 
-#define WHEEL_DIAM 4.1_in
+// 4.1 on field tiles?
+#define WHEEL_DIAM 4.2_in
 #define WHEELBASE_WIDTH 14_in
 
 class Chassis {
@@ -28,7 +29,7 @@ public:
 
   void update();
   void driveStraight(QLength distance);
-  void turnInPlace(QAngle angle);
+  void turnAngle(QAngle angle);
   void driveArc(QLength radius, QAngle angle);
 
   void driveManual();

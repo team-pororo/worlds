@@ -18,7 +18,7 @@ enum class Tile {
 class AutoSelector {
 public:
   Alliance alliance = Alliance::red;
-  Tile tile = Tile::front;
+  Tile tile = Tile::disabled;
   bool platform = true;
 
   void update();

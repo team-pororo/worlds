@@ -112,39 +112,51 @@ void autonomous() {
     case (Tile::back): { // 2hf + 1lc + 1hc + plfm = 10pts
       // START: A5 Facing EAST
       // Intake On
+      intake.moveSpeed(-200);
       // Drive to C5
-      chassis.driveStraight(48_in);
-      // Intake Load Function
+      chassis.driveStraight(50_in);
+      intake.ready();
 
 
       // Turn North
       if (autoSelector.alliance == Alliance::red) {
-        chassis.turnAngle(90_deg);
-      } else {
         chassis.turnAngle(-90_deg);
+      } else {
+        chassis.turnAngle(90_deg);
       }
       // Reverse to between C5 and C6
       chassis.driveStraight(-12_in);
-      // TwoBar to Mid
+      twobar.moveTo(1);
+      pros::Task::delay(500);
       // Reverse to C6
-      chassis.driveStraight(-12_in);
-      // DoubleShot - 3 Position
+      chassis.driveStraight(-18_in);
+      shotHandler.doubleShoot(3);
+      shotHandler.waitUntilSettled();
 
 
       // Drive ARC to between B6 and C6 - face SOUTH
-      chassis.driveArc(12_in, 180_deg);
-      // TwoBar to High
+      chassis.driveArc(15_in, 180_deg);
+      twobar.moveTo(2);
+      pros::Task::delay(1000);
       // Reverse to between B6 and C5
       chassis.driveStraight(-12_in);
-      // TwoBar to Low
+      twobar.moveTo(1);
       // Turn 360deg - face NORTH
       if (autoSelector.alliance == Alliance::red) {
-        chassis.turnAngle(180_deg);
+        chassis.turnAngle(230_deg);
       } else {
-        chassis.turnAngle(-180_deg);
+        chassis.turnAngle(-230_deg);
       }
       // Drive to between B4 and C4
       chassis.driveStraight(24_in); // May need to beef this up to skid up platform
+
+      if (autoSelector.alliance == Alliance::red) {
+        chassis.turnAngle(-50_deg);
+      } else {
+        chassis.turnAngle(50_deg);
+      }
+
+      chassis.driveStraight(30_in);
     }
 
     case (Tile::skills): { // 16pts?
@@ -224,7 +236,7 @@ void autonomous() {
 
     case (Tile::disabled): {
       // Intake On
-      pros::Task::delay(500);
+      chassis.turnAngle(720_deg);
       // Intake Off
 
       // Uncomment for Domo-Auto

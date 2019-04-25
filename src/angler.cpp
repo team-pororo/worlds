@@ -46,12 +46,17 @@ void Angler::moveToAngle(bool high, int position) {
     angle = lowAngles[position];
   }
   targetTicks = (-16.4 * angle + 1880);
+  if (targetTicks > 1370) {
+    targetTicks = 1370;
+  } else if (targetTicks < 1000) {
+    targetTicks = 1000;
+  }
   totalError = 0;
   timeStart = pros::c::millis();
 }
 
 bool Angler::isSettled() {
-  return (abs(pot.get() - targetTicks) < 10 || (pros::c::millis() - timeStart > 1000));
+  return (abs(pot.get() - targetTicks) < 20 || (pros::c::millis() - timeStart > 1000));
 }
 
 void Angler::waitUntilSettled() {

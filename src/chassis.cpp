@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+
 Chassis::Chassis(Controller& c) : controller(c) {
   left.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
   right.setEncoderUnits(AbstractMotor::encoderUnits::degrees);
@@ -11,7 +12,7 @@ void Chassis::driveStraight(QLength distance) {
   drive.moveDistance(distance);
 }
 
-void Chassis::turnInPlace(QAngle angle) {
+void Chassis::turnAngle(QAngle angle) {
   drive.turnAngle(angle);
 }
 
